@@ -1,0 +1,197 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LineIcon from './LineIcon.astro';
+import { ArrowRightDuotone, ChevronDownDuotone } from '@lineiconshq/free-icons';
+
+interface Faq {
+  q: string;
+  a: string;
+}
+
+interface RelatedTool {
+  href: string;
+  title: string;
+  desc: string;
+}
+
+interface Step {
+  title: string;
+  description: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  tagline: string;
+  intro: string;
+  accentColor: 'blue' | 'violet' | 'emerald';
+  toolName: string;
+  faqs: Faq[];
+  relatedTools: RelatedTool[];
+  steps: Step[];
+}
+
+const {
+  title,
+  description,
+  canonical,
+  tagline,
+  intro,
+  accentColor,
+  toolName,
+  faqs,
+  relatedTools,
+  steps,
+} = Astro.props;
+
+const site = Astro.site?.href.replace(/\/$/, '') ?? 'https://imgify.com';
+const toolUrl = `${site}${canonical}`;
+
+const accentHeading = {
+  blue: 'text-blue-600',
+  violet: 'text-violet-600',
+  emerald: 'text-emerald-600',
+};
+
+const accentBorder = {
+  blue: 'border-blue-500',
+  violet: 'border-violet-500',
+  emerald: 'border-emerald-500',
+};
+
+const accentStep = {
+  blue: 'bg-blue-600',
+  violet: 'bg-violet-600',
+  emerald: 'bg-emerald-600',
+};
+
+const webAppJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: `Imgify ${toolName}`,
+  url: toolUrl,
+  applicationCategory: 'MultimediaApplication',
+  operatingSystem: 'Any',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+};
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((faq) => ({
+    '@type': 'Question',
+    name: faq.q,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: faq.a,
+    },
+  })),
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  jsonLd={[webAppJsonLd, faqJsonLd]}
+>
+  <div class="mx-auto max-w-5xl px-4 py-8">
+    <header class:list={['mb-6 border-l-4 pl-5', accentBorder[accentColor]]}>
+      <h1 class:list={['mb-1 text-sm font-medium uppercase tracking-wide', accentHeading[accentColor]]}>
+        {toolName}
+      </h1>
+      <p class="text-base text-gray-600">{tagline}</p>
+    </header>
+
+    <slot />
+
+    <div id="ad-slot-top" class="ad-container">Advertisement</div>
+
+    <section class="my-12">
+      <h2 class="mb-6 text-2xl font-semibold text-gray-900">How it works</h2>
+      <div class="grid gap-6 md:grid-cols-3">
+        {
+          steps.map((step, index) => (
+            <div class="rounded-lg border border-gray-100 bg-gray-50 p-5">
+              <div
+                class:list={[
+                  'mb-3 flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white',
+                  accentStep[accentColor],
+                ]}
+              >
+                {index + 1}
+              </div>
+              <h3 class="mb-2 font-semibold text-gray-900">{step.title}</h3>
+              <p class="text-sm leading-relaxed text-gray-600">{step.description}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <div id="ad-slot-mid" class="ad-container">Advertisement</div>
+
+    <section class="my-12">
+      <h2 class="mb-4 text-xl font-semibold text-gray-900">About this tool</h2>
+      <p class="text-base leading-relaxed text-gray-600">{intro}</p>
+    </section>
+
+    <div id="ad-slot-bottom" class="ad-container">Advertisement</div>
+
+    <section class="my-12">
+      <h2 class="mb-6 text-2xl font-semibold text-gray-900">
+        Frequently Asked Questions
+      </h2>
+      <div class="space-y-3">
+        {
+          faqs.map((faq) => (
+            <details class="group rounded-lg border border-gray-200 bg-white">
+              <summary class="cursor-pointer px-5 py-4 font-medium text-gray-900 marker:content-none">
+                <span class="flex items-center justify-between">
+                  {faq.q}
+                  <LineIcon
+                    icon={ChevronDownDuotone}
+                    size={20}
+                    class="ml-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180"
+                  />
+                </span>
+              </summary>
+              <p class="border-t border-gray-100 px-5 py-4 text-sm leading-relaxed text-gray-600">
+                {faq.a}
+              </p>
+            </details>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="my-12">
+      <h2 class="mb-6 text-2xl font-semibold text-gray-900">Related Tools</h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        {
+          relatedTools.map((tool) => (
+            <a
+              href={tool.href}
+              class="group flex items-start gap-3 rounded-xl border border-gray-200 p-4 transition-all hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm"
+            >
+              <LineIcon
+                icon={ArrowRightDuotone}
+                size={18}
+                class="mt-0.5 shrink-0 text-gray-300 transition-all group-hover:translate-x-0.5 group-hover:text-blue-500"
+              />
+              <div>
+                <h3 class="mb-1 font-semibold text-gray-900">{tool.title}</h3>
+                <p class="text-sm text-gray-600">{tool.desc}</p>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</BaseLayout>

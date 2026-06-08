@@ -1,0 +1,62 @@
+---
+import ToolLayout from '../../components/shared/ToolLayout.astro';
+import DropzoneFallback from '../../components/shared/DropzoneFallback.astro';
+import PopularConversions from '../../components/shared/PopularConversions.astro';
+import ImageConverter from '../../components/tools/ImageConverter';
+import {
+  conversionPages,
+  getConversionSteps,
+  getRelatedConversions,
+} from '../../lib/conversion-pages';
+
+export function getStaticPaths() {
+  return conversionPages.map((page) => ({
+    params: { conversion: page.slug },
+    props: { page },
+  }));
+}
+
+const { page } = Astro.props;
+
+const steps = getConversionSteps(
+  page.slug.split('-to-')[0].toUpperCase(),
+  page.defaultFormat.toUpperCase(),
+);
+
+const relatedConversions = getRelatedConversions(page.slug, 2);
+
+const relatedTools = [
+  ...relatedConversions,
+  {
+    href: '/tools/social-media-resizer',
+    title: 'Social Media Resizer',
+    desc: 'Resize images for Instagram, YouTube, Twitter, and more.',
+  },
+];
+---
+
+<ToolLayout
+  title={page.title}
+  description={page.description}
+  canonical={`/tools/${page.slug}`}
+  tagline={page.tagline}
+  intro={page.intro}
+  accentColor="blue"
+  toolName={page.toolName}
+  faqs={page.faqs}
+  relatedTools={relatedTools}
+  steps={steps}
+>
+  <ImageConverter
+    client:only="react"
+    defaultFormat={page.defaultFormat}
+    uploadHint={page.uploadHint}
+  >
+    <DropzoneFallback
+      slot="fallback"
+      hint={page.uploadHint ?? 'Drag images here or click to upload'}
+      subhint="or click to browse — bulk upload supported"
+    />
+  </ImageConverter>
+  <PopularConversions exclude={page.slug} />
+</ToolLayout>

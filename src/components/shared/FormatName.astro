@@ -1,0 +1,40 @@
+---
+interface Props {
+  format: string;
+}
+
+const { format } = Astro.props;
+
+const FORMAT_ICONS: Record<string, string> = {
+  JPG: '/svgs/jpg.svg',
+  PNG: '/svgs/png.svg',
+  WebP: '/svgs/webp.svg',
+};
+
+const FORMAT_COLORS: Record<string, string> = {
+  JPG: 'text-amber-700',
+  PNG: 'text-emerald-700',
+  WebP: 'text-violet-700',
+  AVIF: 'text-sky-700',
+};
+
+const icon = FORMAT_ICONS[format];
+---
+
+{
+  icon ? (
+    <span class="inline-flex items-center gap-1">
+      <img
+        src={icon}
+        alt=""
+        aria-hidden="true"
+        width="22"
+        height="26"
+        class="h-[1.15em] w-auto shrink-0"
+      />
+      <span class={FORMAT_COLORS[format]}>{format}</span>
+    </span>
+  ) : (
+    <span class={FORMAT_COLORS[format]}>{format}</span>
+  )
+}

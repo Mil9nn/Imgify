@@ -1,0 +1,117 @@
+---
+import '../styles/global.css';
+import LineIcon from '../components/shared/LineIcon.astro';
+import { PhotosDuotone } from '@lineiconshq/free-icons';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  canonical,
+  ogTitle = title,
+  ogDescription = description,
+  jsonLd,
+} = Astro.props;
+
+const site = Astro.site?.href.replace(/\/$/, '') ?? 'https://imgify.com';
+const canonicalUrl = canonical ? `${site}${canonical}` : Astro.url.href;
+const isHome = Astro.url.pathname === '/';
+const jsonLdScripts = jsonLd
+  ? Array.isArray(jsonLd)
+    ? jsonLd
+    : [jsonLd]
+  : [];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalUrl} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={ogDescription} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Imgify" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={ogTitle} />
+    <meta name="twitter:description" content={ogDescription} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    {
+      jsonLdScripts.map((schema) => (
+        <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+      ))
+    }
+    <slot name="head" />
+  </head>
+  <body class="min-h-screen font-sans">
+    <header class="sticky top-0 z-50 border-b border-gray-100/80 bg-white/90 backdrop-blur-md">
+      <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3.5">
+        <a href="/" class="group flex items-center gap-2.5">
+          <span
+            class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-white shadow-sm shadow-blue-200/50 transition-transform group-hover:scale-105"
+          >
+            <LineIcon icon={PhotosDuotone} size={20} class="text-white" />
+          </span>
+          <span class="text-xl font-bold tracking-tight text-gray-900">Imgify</span>
+        </a>
+        {
+          isHome && (
+            <nav class="flex items-center gap-1 text-sm">
+              <a
+                href="/"
+                class="rounded-lg px-3 py-2 font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+              >
+                All Tools
+              </a>
+            </nav>
+          )
+        }
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="mt-16 border-t border-gray-100 bg-gradient-to-b from-gray-50 to-white">
+      <div class="mx-auto max-w-5xl px-4 py-10">
+        <div class="mb-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+          <a href="/" class="flex items-center gap-2 text-gray-900">
+            <span
+              class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-violet-600 text-white"
+            >
+              <LineIcon icon={PhotosDuotone} size={16} class="text-white" />
+            </span>
+            <span class="font-semibold">Imgify</span>
+          </a>
+          <p class="text-sm text-gray-500">Free online image tools — private &amp; browser-based</p>
+        </div>
+        <div class="flex flex-col items-center gap-3 text-sm text-gray-400">
+          <nav class="flex items-center gap-4">
+            <a href="/privacy" class="transition-colors hover:text-gray-600">Privacy</a>
+            <a href="/terms" class="transition-colors hover:text-gray-600">Terms</a>
+          </nav>
+          <p>&copy; {new Date().getFullYear()} Imgify. All tools run locally in your browser.</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

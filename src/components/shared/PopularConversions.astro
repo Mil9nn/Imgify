@@ -1,0 +1,51 @@
+---
+import { conversionLinks } from '../../lib/conversion-pages';
+import FormatName from './FormatName.astro';
+import LineIcon from './LineIcon.astro';
+import { ArrowRightDuotone } from '@lineiconshq/free-icons';
+
+interface Props {
+  heading?: string;
+  exclude?: string;
+}
+
+const { heading = 'Popular Conversions', exclude } = Astro.props;
+
+const links = exclude
+  ? conversionLinks.filter((l) => l.href !== `/tools/${exclude}`)
+  : conversionLinks;
+
+function parseConversionLabel(label: string) {
+  const [from, to] = label.split(' to ');
+  return { from, to };
+}
+---
+
+<section class="my-12">
+  <h2 class="mb-4 text-2xl font-semibold text-gray-900">{heading}</h2>
+  <p class="mb-6 text-sm text-gray-600">
+    Free online format converters — each tool is pre-configured for fast conversion.
+  </p>
+  <div class="flex flex-wrap gap-2">
+    {
+      links.map((link) => {
+        const { from, to } = parseConversionLabel(link.label);
+        return (
+          <a
+            href={link.href}
+            class="group inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold shadow-sm transition-all hover:border-gray-300 hover:bg-gray-50 hover:shadow"
+          >
+            <FormatName format={from} />
+            <span class="font-normal text-gray-400">to</span>
+            <FormatName format={to} />
+            <LineIcon
+              icon={ArrowRightDuotone}
+              size={14}
+              class="text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-gray-500"
+            />
+          </a>
+        );
+      })
+    }
+  </div>
+</section>

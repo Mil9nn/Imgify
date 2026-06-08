@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 120" width="90" height="120">
+  <path d="M0,0 L60,0 L90,30 L90,120 L0,120 Z" fill="#059669"/>
+  <path d="M60,0 L90,30 L60,30 Z" fill="#000" fill-opacity="0.2"/>
+  <rect x="0" y="80" width="90" height="40" fill="#000" fill-opacity="0.25"/>
+  <text x="45" y="107" text-anchor="middle" font-family="sans-serif"
+        font-size="26" font-weight="900" fill="#fff" letter-spacing="1">PNG</text>
+</svg>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://imgify.com/sitemap-index.xml

@@ -1,0 +1,28 @@
+---
+import LineIcon from './LineIcon.astro';
+import { Upload1Duotone } from '@lineiconshq/free-icons';
+
+interface Props {
+  hint?: string;
+  subhint?: string;
+}
+
+const {
+  hint = 'Drag images here or click to upload',
+  subhint = 'PNG, JPG, WEBP, AVIF — bulk upload supported',
+} = Astro.props;
+---
+
+<div class="space-y-6" aria-busy="true" aria-label="Loading image tool">
+  <div
+    class="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-10 text-center"
+  >
+    <div class="mb-3 flex justify-center">
+      <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-500">
+        <LineIcon icon={Upload1Duotone} size={32} />
+      </span>
+    </div>
+    <p class="font-medium text-gray-900">{hint}</p>
+    <p class="mt-1 text-sm text-gray-500">{subhint}</p>
+  </div>
+</div>

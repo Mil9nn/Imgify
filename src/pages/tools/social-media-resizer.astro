@@ -1,0 +1,84 @@
+---
+import ToolLayout from '../../components/shared/ToolLayout.astro';
+import DropzoneFallback from '../../components/shared/DropzoneFallback.astro';
+import SocialMediaResizer from '../../components/tools/SocialMediaResizer';
+
+const intro = `Resize images for every major social media platform with Imgify's free social media resizer. Upload a single photo and instantly generate perfectly sized versions for Instagram posts and stories, YouTube thumbnails, Twitter headers, LinkedIn covers, and Facebook covers. Each preset uses the exact pixel dimensions recommended by each platform, with center-crop cover-fit resizing so your images look sharp and professional. Toggle which sizes you need, preview the results, and download everything as a ZIP file with clearly named files like instagram-post.png and youtube-thumbnail.png. Like all Imgify tools, processing happens entirely in your browser — your photos are never uploaded to a server. Perfect for marketers, social media managers, and creators who need to publish across multiple channels quickly.`;
+
+const faqs = [
+  {
+    q: 'What social media sizes are supported?',
+    a: 'We support Instagram Post (1080×1080), Instagram Story (1080×1920), YouTube Thumbnail (1280×720), Twitter/X Header (1500×500), LinkedIn Cover (1584×396), and Facebook Cover (820×312).',
+  },
+  {
+    q: 'How does the resizing work?',
+    a: 'Images are resized using center-crop cover-fit, which fills the target dimensions without distortion. The center of your image is preserved and edges are cropped if needed.',
+  },
+  {
+    q: 'Can I download all sizes at once?',
+    a: 'Yes. Select the presets you need, generate the resized images, then click "Download Selected as ZIP" to get all files in one archive with descriptive filenames.',
+  },
+  {
+    q: 'Are my images uploaded to a server?',
+    a: 'No. All resizing is done locally in your browser using the Canvas API. Your images stay on your device.',
+  },
+  {
+    q: 'What image formats can I upload?',
+    a: 'You can upload any common image format including PNG, JPG, WEBP, and GIF. All output files are saved as PNG for maximum compatibility.',
+  },
+];
+
+const steps = [
+  {
+    title: 'Upload your image',
+    description: 'Drag and drop or click to upload a single image you want to resize for social media.',
+  },
+  {
+    title: 'Select platform presets',
+    description: 'Toggle the social media sizes you need — Instagram, YouTube, Twitter, LinkedIn, or Facebook.',
+  },
+  {
+    title: 'Download your sizes',
+    description: 'Preview each resized version and download all selected sizes as a ZIP file.',
+  },
+];
+
+const relatedTools = [
+  {
+    href: '/tools/jpg-to-png',
+    title: 'JPG to PNG Converter',
+    desc: 'Convert JPEG to PNG before resizing for social media.',
+  },
+  {
+    href: '/tools/png-to-webp',
+    title: 'PNG to WebP Converter',
+    desc: 'Compress PNG images to WebP for faster uploads.',
+  },
+  {
+    href: '/tools/jpg-to-webp',
+    title: 'JPG to WebP Converter',
+    desc: 'Compress JPEG images to WebP for faster uploads.',
+  },
+];
+---
+
+<ToolLayout
+  title="Social Media Image Resizer — Instagram, YouTube, Twitter | Imgify"
+  description="Resize images for Instagram, YouTube, Twitter, LinkedIn, and Facebook. Free online tool with exact platform dimensions. Download all sizes as ZIP."
+  canonical="/tools/social-media-resizer"
+  tagline="One upload, every platform size — Instagram, YouTube, Twitter, and more"
+  intro={intro}
+  accentColor="violet"
+  toolName="Social Media Resizer"
+  faqs={faqs}
+  relatedTools={relatedTools}
+  steps={steps}
+>
+  <SocialMediaResizer client:only="react">
+    <DropzoneFallback
+      slot="fallback"
+      hint="Upload an image to resize"
+      subhint="PNG, JPG, WEBP — click to browse"
+    />
+  </SocialMediaResizer>
+</ToolLayout>

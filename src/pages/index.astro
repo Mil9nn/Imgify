@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ToolCard from '../components/shared/ToolCard.astro';
+import PopularConversions from '../components/shared/PopularConversions.astro';
+import LineIcon from '../components/shared/LineIcon.astro';
+import {
+  GalleryDuotone,
+  ExpandSquare4Duotone,
+  Shield2CheckDuotone,
+  Locked1Duotone,
+  Bolt2Duotone,
+} from '@lineiconshq/free-icons';
+
+const tools = [
+  {
+    href: '/tools/jpg-to-png',
+    title: 'JPG to PNG',
+    description:
+      'Free JPG to PNG converter online. Change JPEG to PNG instantly — no upload required.',
+    accentColor: 'blue' as const,
+    badge: 'Popular',
+    icon: GalleryDuotone,
+  },
+  {
+    href: '/tools/social-media-resizer',
+    title: 'Social Media Resizer',
+    description:
+      'Resize one image for Instagram, YouTube, Twitter, LinkedIn, and Facebook. Download all sizes as a ZIP.',
+    accentColor: 'violet' as const,
+    icon: ExpandSquare4Duotone,
+  },
+];
+
+const trustBadges = [
+  { icon: Shield2CheckDuotone, label: '100% private', desc: 'Files never leave your device' },
+  { icon: Locked1Duotone, label: 'No signup', desc: 'Start converting instantly' },
+  { icon: Bolt2Duotone, label: 'Lightning fast', desc: 'Powered by your browser' },
+];
+---
+
+<BaseLayout
+  title="Imgify — Free Online Image Tools | JPG to PNG, PNG to WebP & More"
+  description="Free online image tools. Convert JPG to PNG, PNG to WebP, JPG to WebP, and resize for social media — all in your browser. No upload, no signup."
+  canonical="/"
+>
+  <div class="relative overflow-hidden">
+    <div
+      class="pointer-events-none absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-blue-50/80 via-violet-50/40 to-transparent"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="relative mx-auto max-w-5xl px-4 py-16 md:py-20">
+      <section class="mb-14 text-center">
+        <p
+          class="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white/80 px-4 py-1.5 text-sm font-medium text-blue-700 shadow-sm backdrop-blur-sm"
+        >
+          <LineIcon icon={Bolt2Duotone} size={16} class="text-blue-600" />
+          Free tools · No upload · Works offline
+        </p>
+        <h1 class="mb-4 text-4xl font-bold tracking-tight text-gray-900 md:text-5xl lg:text-[3.25rem]">
+          Free Online Image Tools
+        </h1>
+        <p class="mx-auto max-w-2xl text-lg leading-relaxed text-gray-600">
+          Convert JPG to PNG, PNG to WebP, and resize for social media — fast, private tools that
+          run entirely in your browser.
+        </p>
+
+        <div class="mx-auto mt-10 grid max-w-3xl gap-4 sm:grid-cols-3">
+          {
+            trustBadges.map((item) => (
+              <div class="flex flex-col items-center gap-2 rounded-2xl border border-gray-100 bg-white/70 px-4 py-5 shadow-sm backdrop-blur-sm">
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-blue-600">
+                  <LineIcon icon={item.icon} size={22} />
+                </span>
+                <p class="font-semibold text-gray-900">{item.label}</p>
+                <p class="text-xs text-gray-500">{item.desc}</p>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="mb-16">
+        <h2 class="mb-6 text-2xl font-semibold text-gray-900">All Tools</h2>
+        <div class="grid gap-6 sm:grid-cols-2">
+          {tools.map((tool) => <ToolCard {...tool} />)}
+        </div>
+      </section>
+
+      <PopularConversions heading="Free Format Converters" />
+    </div>
+  </div>
+</BaseLayout>
