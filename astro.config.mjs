@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, sessionDrivers } from 'astro/config';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -18,9 +18,14 @@ export default defineConfig({
   site: 'https://imgify.com',
   output: 'static',
   integrations: [react(), sitemap()],
+  // Static site — no server sessions; avoids Cloudflare KV auto-provisioning on deploy
+  session: {
+    driver: sessionDrivers.lruCache({ max: 100 }),
+  },
   adapter: cloudflare({
     // Use Node for prerender during dev — workerd breaks CJS deps like React
     prerenderEnvironment: 'node',
+    imageService: { build: 'compile', runtime: 'passthrough' },
   }),
   vite: {
     plugins: [tailwindcss()],
