@@ -1,0 +1,36 @@
+---
+import ErrorPageShell from '../components/shared/ErrorPageShell.astro';
+import { errorNavLinks } from '../lib/error-nav-links';
+
+interface Props {
+  error: unknown;
+}
+
+// Available when rendered on demand; never shown to visitors.
+const { error } = Astro.props;
+if (import.meta.env.DEV && error) {
+  console.error('[500]', error);
+}
+---
+
+<ErrorPageShell
+  title="Something Went Wrong — Pickraft"
+  description="Something went wrong on our end. Please try again in a few minutes."
+  code="500"
+  eyebrow="server error"
+  headline="Something went wrong on our end."
+  message="Please try again in a few minutes. If the problem keeps happening, you can return home or reach out via our privacy page."
+  navLinks={errorNavLinks}
+>
+  <button slot="actions" type="button" class="error-btn-primary" data-retry>
+    Try again
+  </button>
+  <a slot="actions" href="/" class="error-btn-secondary">Back to homepage</a>
+  <a slot="actions" href="/contact" class="error-btn-secondary">Contact us</a>
+</ErrorPageShell>
+
+<script>
+  document.querySelector('[data-retry]')?.addEventListener('click', () => {
+    window.location.reload();
+  });
+</script>

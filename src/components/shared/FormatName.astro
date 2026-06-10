@@ -1,24 +1,15 @@
 ---
+import { FORMAT_ICONS } from '../../lib/format-icons';
+
 interface Props {
   format: string;
+  size?: 'default' | 'sm';
 }
 
-const { format } = Astro.props;
-
-const FORMAT_ICONS: Record<string, string> = {
-  JPG: '/svgs/jpg.svg',
-  PNG: '/svgs/png.svg',
-  WebP: '/svgs/webp.svg',
-};
-
-const FORMAT_COLORS: Record<string, string> = {
-  JPG: 'text-amber-700',
-  PNG: 'text-emerald-700',
-  WebP: 'text-violet-700',
-  AVIF: 'text-sky-700',
-};
+const { format, size = 'default' } = Astro.props;
 
 const icon = FORMAT_ICONS[format];
+const isSm = size === 'sm';
 ---
 
 {
@@ -28,13 +19,13 @@ const icon = FORMAT_ICONS[format];
         src={icon}
         alt=""
         aria-hidden="true"
-        width="22"
-        height="26"
-        class="h-[1.15em] w-auto shrink-0"
+        width={isSm ? 18 : 30}
+        height={isSm ? 22 : 36}
+        class:list={['w-auto shrink-0', isSm ? 'h-[1em]' : 'h-[1.7em]']}
       />
-      <span class={FORMAT_COLORS[format]}>{format}</span>
+      <span class="text-ink">{format}</span>
     </span>
   ) : (
-    <span class={FORMAT_COLORS[format]}>{format}</span>
+    <span class="text-ink">{format}</span>
   )
 }

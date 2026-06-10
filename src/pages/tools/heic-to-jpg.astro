@@ -1,0 +1,57 @@
+---
+import ToolLayout from '../../components/shared/ToolLayout.astro';
+import DropzoneFallback from '../../components/shared/DropzoneFallback.astro';
+import HeicToJpg from '../../components/tools/HeicToJpg';
+import { getRelatedConversions } from '../../lib/conversion-pages';
+import { heicToJpgPageFaqs } from '../../lib/heic-jpg-faqs';
+
+const intro = `Need to convert HEIC to JPG? Pickraft's free HEIC to JPG converter lets you change iPhone photos and .heic files to JPEG online — no software download, no signup. Whether you want to convert a single HEIC image or batch-convert hundreds of Apple photos, this online HEIC to JPG converter handles it in seconds. Simply drag your .heic files onto the tool, click Convert, and download JPG files individually or as a ZIP archive. Change HEIC to JPG free on Windows, Mac, and iPhone — perfect when email clients, websites, or Windows PCs won't open Apple's HEIC format. Converting HEIC to JPG makes your photos universally compatible. Your files never leave your browser.`;
+
+const steps = [
+  {
+    title: 'Upload your HEIC files',
+    description:
+      'Drag and drop .heic or .heif photos from your iPhone, Mac, or PC — or click to browse. Bulk upload supported.',
+  },
+  {
+    title: 'Convert HEIC to JPG',
+    description:
+      'Adjust JPEG quality if needed, then click Convert All. Each HEIC file becomes a standard JPG image.',
+  },
+  {
+    title: 'Download your JPEGs',
+    description:
+      'Download converted JPG files one by one or grab them all as a ZIP — ready to share, email, or upload anywhere.',
+  },
+];
+
+const relatedTools = [
+  ...getRelatedConversions('heic-to-jpg', 2),
+  {
+    href: '/tools/img-to-pdf',
+    title: 'Image to PDF Converter',
+    desc: 'Combine JPG, PNG, and WebP images into a single multi-page PDF.',
+  },
+];
+---
+
+<ToolLayout
+  title="HEIC to JPG Converter — Free Online | Convert HEIC to JPEG | Pickraft"
+  description="Free HEIC to JPG converter. Convert HEIC to JPG online — change .heic to JPEG on Windows, Mac & iPhone. Free heic to jpg converter, no download."
+  canonical="/tools/heic-to-jpg"
+  tagline="Convert HEIC to JPG free online — free HEIC to JPG converter, no signup or download"
+  intro={intro}
+  accentColor="violet"
+  toolName="HEIC to JPG Converter"
+  faqs={heicToJpgPageFaqs}
+  relatedTools={relatedTools}
+  steps={steps}
+>
+  <HeicToJpg client:only="react" uploadHint="Drop HEIC files here to convert to JPG">
+    <DropzoneFallback
+      slot="fallback"
+      hint="Drop HEIC files here to convert to JPG"
+      subhint=".heic, .heif — free HEIC to JPG converter, no download"
+    />
+  </HeicToJpg>
+</ToolLayout>

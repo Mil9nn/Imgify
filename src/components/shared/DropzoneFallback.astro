@@ -9,20 +9,20 @@ interface Props {
 
 const {
   hint = 'Drag images here or click to upload',
-  subhint = 'PNG, JPG, WEBP, AVIF — bulk upload supported',
+  subhint = 'PNG, JPG, WEBP — bulk upload supported',
 } = Astro.props;
 ---
 
 <div class="space-y-6" aria-busy="true" aria-label="Loading image tool">
   <div
-    class="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-10 text-center"
+    class="rounded-xl border-2 border-dashed border-hairline bg-canvas-soft p-10 text-center"
   >
     <div class="mb-3 flex justify-center">
-      <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-500">
+      <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-canvas-soft text-link">
         <LineIcon icon={Upload1Duotone} size={32} />
       </span>
     </div>
-    <p class="font-medium text-gray-900">{hint}</p>
-    <p class="mt-1 text-sm text-gray-500">{subhint}</p>
+    <p class="type-label">{hint}</p>
+    <p class="type-body-sm mt-1">{subhint}</p>
   </div>
 </div>

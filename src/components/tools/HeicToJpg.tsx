@@ -6,19 +6,17 @@ import {
 } from '@lineiconshq/free-icons';
 import Icon from '../shared/Icon';
 import {
-  type OutputFormat,
-  convertImage,
+  convertHeicToJpg,
   downloadBlob,
   formatFileSize,
   getBaseName,
-  getExtension,
   getSizeComparison,
+  isHeicFile,
 } from '../../lib/image-utils';
 
 interface ConvertedFile {
   id: string;
   original: File;
-  originalUrl: string;
   convertedBlob: Blob | null;
   convertedUrl: string | null;
   originalSize: number;
@@ -27,26 +25,22 @@ interface ConvertedFile {
   error?: string;
 }
 
-const ACCEPTED_TYPES = 'image/png,image/jpeg,image/webp';
+const ACCEPTED_TYPES = '.heic,.heif,image/heic,image/heif';
+
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-interface ImageConverterProps {
-  defaultFormat?: OutputFormat;
+interface HeicToJpgProps {
   uploadHint?: string;
 }
 
-export default function ImageConverter({
-  defaultFormat = 'webp',
-  uploadHint,
-}: ImageConverterProps) {
+export default function HeicToJpg({ uploadHint }: HeicToJpgProps) {
   const [files, setFiles] = useState<ConvertedFile[]>([]);
   const [quality, setQuality] = useState(85);
   const [isConverting, setIsConverting] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const format = defaultFormat;
   const filesRef = useRef(files);
 
   useEffect(() => {
@@ -56,24 +50,21 @@ export default function ImageConverter({
   useEffect(() => {
     return () => {
       filesRef.current.forEach((f) => {
-        URL.revokeObjectURL(f.originalUrl);
         if (f.convertedUrl) URL.revokeObjectURL(f.convertedUrl);
       });
     };
   }, []);
 
-  const revokeFileUrls = (file: ConvertedFile) => {
-    URL.revokeObjectURL(file.originalUrl);
+  const revokeConvertedUrl = (file: ConvertedFile) => {
     if (file.convertedUrl) URL.revokeObjectURL(file.convertedUrl);
   };
 
   const addFiles = useCallback((incoming: FileList | File[]) => {
     const newFiles: ConvertedFile[] = Array.from(incoming)
-      .filter((f) => f.type.startsWith('image/'))
+      .filter(isHeicFile)
       .map((file) => ({
         id: generateId(),
         original: file,
-        originalUrl: URL.createObjectURL(file),
         convertedBlob: null,
         convertedUrl: null,
         originalSize: file.size,
@@ -99,22 +90,17 @@ export default function ImageConverter({
   const removeFile = (id: string) => {
     setFiles((prev) => {
       const file = prev.find((f) => f.id === id);
-      if (file) revokeFileUrls(file);
+      if (file) revokeConvertedUrl(file);
       return prev.filter((f) => f.id !== id);
     });
   };
 
   const convertSingle = async (
     fileEntry: ConvertedFile,
-    outputFormat: OutputFormat,
     outputQuality: number,
   ): Promise<ConvertedFile> => {
     try {
-      const blob = await convertImage(
-        fileEntry.original,
-        outputFormat,
-        outputQuality,
-      );
+      const blob = await convertHeicToJpg(fileEntry.original, outputQuality);
       const convertedUrl = URL.createObjectURL(blob);
       if (fileEntry.convertedUrl) URL.revokeObjectURL(fileEntry.convertedUrl);
 
@@ -144,7 +130,7 @@ export default function ImageConverter({
       updated[i] = { ...updated[i], status: 'converting' };
       setFiles([...updated]);
 
-      updated[i] = await convertSingle(updated[i], format, quality);
+      updated[i] = await convertSingle(updated[i], quality);
       setFiles([...updated]);
 
       await new Promise((r) => requestAnimationFrame(() => r(undefined)));
@@ -155,8 +141,7 @@ export default function ImageConverter({
 
   const downloadSingle = (fileEntry: ConvertedFile) => {
     if (!fileEntry.convertedBlob) return;
-    const ext = getExtension(format);
-    const name = `${getBaseName(fileEntry.original.name)}.${ext}`;
+    const name = `${getBaseName(fileEntry.original.name)}.jpg`;
     downloadBlob(fileEntry.convertedBlob, name);
   };
 
@@ -166,7 +151,6 @@ export default function ImageConverter({
 
     const { default: JSZip } = await import('jszip');
     const zip = new JSZip();
-    const ext = getExtension(format);
     const nameCounts = new Map<string, number>();
 
     doneFiles.forEach((fileEntry) => {
@@ -174,13 +158,12 @@ export default function ImageConverter({
       const base = getBaseName(fileEntry.original.name);
       const count = (nameCounts.get(base) ?? 0) + 1;
       nameCounts.set(base, count);
-      const filename =
-        count > 1 ? `${base}-${count}.${ext}` : `${base}.${ext}`;
+      const filename = count > 1 ? `${base}-${count}.jpg` : `${base}.jpg`;
       zip.file(filename, fileEntry.convertedBlob);
     });
 
     const blob = await zip.generateAsync({ type: 'blob' });
-    downloadBlob(blob, 'converted-images.zip');
+    downloadBlob(blob, 'heic-to-jpg.zip');
   };
 
   const doneCount = files.filter((f) => f.status === 'done').length;
@@ -206,7 +189,7 @@ export default function ImageConverter({
     downloadAllZip();
   };
 
-  const bulkDownloadLabel = isSingle ? 'Download' : `Download All as ZIP (${doneCount})`;
+  const bulkDownloadLabel = isSingle ? 'Download JPG' : `Download All as ZIP (${doneCount})`;
 
   return (
     <div className="space-y-6">
@@ -225,8 +208,8 @@ export default function ImageConverter({
         }}
         className={`cursor-pointer rounded-xl border-2 border-dashed p-10 text-center transition-colors ${
           isDragging
-            ? 'border-link bg-link/10'
-            : 'border-hairline bg-canvas-soft hover:border-link/60 hover:bg-link/5'
+            ? 'border-violet-500 bg-violet-500/10'
+            : 'border-hairline bg-canvas-soft hover:border-violet-400/60 hover:bg-violet-500/5'
         }`}
       >
         <input
@@ -241,44 +224,36 @@ export default function ImageConverter({
           }}
         />
         <div className="mb-3 flex justify-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-canvas-soft text-link">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
             <Icon icon={Upload1Duotone} size={32} />
           </span>
         </div>
         <p className="type-label">
-          {uploadHint ?? 'Drag images here or click to upload'}
+          {uploadHint ?? 'Drag HEIC files here or click to upload'}
         </p>
         <p className="type-body-sm mt-1">
-          {uploadHint
-            ? files.length > 0
-              ? 'or click to add more images'
-              : 'or click to browse — bulk upload supported'
-            : files.length > 0
-              ? 'PNG, JPG, WEBP — click to add more'
-              : 'PNG, JPG, WEBP — bulk upload supported'}
+          {files.length > 0
+            ? '.heic, .heif — click to add more files'
+            : '.heic, .heif — bulk upload supported, free HEIC to JPG converter'}
         </p>
       </div>
 
       <div className="rounded-xl border border-hairline bg-canvas p-5">
-        <label htmlFor="quality" className="type-label mb-1 block">
-          Quality: {quality}
+        <label htmlFor="heic-quality" className="type-label mb-1 block">
+          JPEG quality: {quality}
         </label>
         <input
-          id="quality"
+          id="heic-quality"
           type="range"
           min={10}
           max={100}
           value={quality}
           onChange={(e) => setQuality(Number(e.target.value))}
-          disabled={format === 'png'}
-          className="w-full accent-blue-600 disabled:opacity-50"
+          className="w-full accent-violet-600"
         />
-        {format === 'png' && (
-          <p className="type-caption mt-1 text-amber-700">
-            PNG is lossless — converting from JPG usually makes files much larger. Use WebP for
-            smaller output.
-          </p>
-        )}
+        <p className="type-caption mt-1">
+          85–90 recommended for iPhone photos — balances file size and visual quality.
+        </p>
       </div>
 
       {files.length > 0 && (
@@ -291,7 +266,7 @@ export default function ImageConverter({
                   : null;
               const isDone = fileEntry.status === 'done';
               const isConvertingFile = fileEntry.status === 'converting';
-              const previewUrl = fileEntry.convertedUrl ?? fileEntry.originalUrl;
+              const showPreview = isDone && fileEntry.convertedUrl;
 
               return (
                 <div
@@ -308,27 +283,38 @@ export default function ImageConverter({
                   </button>
 
                   <div className="relative aspect-square bg-canvas-soft">
-                    <img
-                      src={previewUrl}
-                      alt={isDone ? 'Converted' : 'Original'}
-                      className="h-full w-full object-cover"
-                    />
+                    {showPreview ? (
+                      <img
+                        src={fileEntry.convertedUrl!}
+                        alt="Converted JPG preview"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full flex-col items-center justify-center gap-1 px-2 text-center">
+                        <span className="type-caption font-semibold uppercase tracking-wide text-violet-600">
+                          HEIC
+                        </span>
+                        <span className="type-caption line-clamp-2">
+                          {fileEntry.original.name}
+                        </span>
+                      </div>
+                    )}
                     {isConvertingFile && (
-                      <div className="type-caption absolute inset-0 flex items-center justify-center bg-canvas/70 font-medium text-link">
+                      <div className="type-caption absolute inset-0 flex items-center justify-center bg-canvas/70 font-medium text-violet-600 dark:text-violet-400">
                         Converting…
                       </div>
                     )}
                     {isDone && (
                       <span className="type-caption absolute bottom-1.5 left-1.5 rounded bg-green-600/90 px-1.5 py-0.5 font-medium text-white">
-                        Converted
+                        JPG
                       </span>
                     )}
                     {isDone && !isSingle && (
                       <button
                         type="button"
                         onClick={() => downloadSingle(fileEntry)}
-                        className="absolute bottom-1.5 right-1.5 rounded bg-blue-600 p-1.5 text-white opacity-0 shadow-sm transition-opacity hover:bg-blue-700 group-hover:opacity-100"
-                        aria-label="Download"
+                        className="absolute bottom-1.5 right-1.5 rounded bg-violet-600 p-1.5 text-white opacity-0 shadow-sm transition-opacity hover:bg-violet-700 group-hover:opacity-100"
+                        aria-label="Download JPG"
                       >
                         <Icon icon={Download1Duotone} size={14} />
                       </button>
@@ -375,7 +361,7 @@ export default function ImageConverter({
               type="button"
               onClick={convertAll}
               disabled={isConverting || files.length === 0}
-              className="type-button rounded-lg bg-blue-600 px-6 py-2.5 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="type-button rounded-lg bg-violet-600 px-6 py-2.5 text-white hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {convertLabel}
             </button>

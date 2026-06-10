@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
-import LineIcon from '../components/shared/LineIcon.astro';
-import { PhotosDuotone } from '@lineiconshq/free-icons';
+import ThemeToggle from '../components/shared/ThemeToggle.astro';
+import { BRAND_NAME, BRAND_TAGLINE } from '../lib/brand';
 
 interface Props {
   title: string;
@@ -29,6 +29,9 @@ const jsonLdScripts = jsonLd
     ? jsonLd
     : [jsonLd]
   : [];
+
+const brandNameClass =
+  'bg-gradient-to-r from-cyan-600 via-blue-600 to-violet-600 bg-clip-text text-transparent';
 ---
 
 <!doctype html>
@@ -36,7 +39,22 @@ const jsonLdScripts = jsonLd
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://www.googletagmanager.com" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TKSFC1E48Y"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'G-TKSFC1E48Y');
+    </script>
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content={BRAND_NAME} />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="canonical" href={canonicalUrl} />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -44,16 +62,22 @@ const jsonLdScripts = jsonLd
     <meta property="og:description" content={ogDescription} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Imgify" />
+    <meta property="og:site_name" content={BRAND_NAME} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={ogTitle} />
     <meta name="twitter:description" content={ogDescription} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <script is:inline>
+      (function () {
+        var theme = localStorage.getItem('theme');
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+      })();
+    </script>
     {
       jsonLdScripts.map((schema) => (
         <script type="application/ld+json" set:html={JSON.stringify(schema)} />
@@ -62,28 +86,34 @@ const jsonLdScripts = jsonLd
     <slot name="head" />
   </head>
   <body class="min-h-screen font-sans">
-    <header class="sticky top-0 z-50 border-b border-gray-100/80 bg-white/90 backdrop-blur-md">
+    <header class="sticky top-0 z-50 border-b border-hairline bg-canvas/90 backdrop-blur-md">
       <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3.5">
         <a href="/" class="group flex items-center gap-2.5">
-          <span
-            class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-white shadow-sm shadow-blue-200/50 transition-transform group-hover:scale-105"
-          >
-            <LineIcon icon={PhotosDuotone} size={20} class="text-white" />
-          </span>
-          <span class="text-xl font-bold tracking-tight text-gray-900">Imgify</span>
+          <img
+            src="/logo2.png"
+            alt=""
+            aria-hidden="true"
+            width="36"
+            height="36"
+            class="h-9 w-9 object-contain transition-transform group-hover:scale-105"
+          />
+          <span class:list={['type-card-title', brandNameClass]}>{BRAND_NAME}</span>
         </a>
-        {
-          isHome && (
-            <nav class="flex items-center gap-1 text-sm">
-              <a
-                href="/"
-                class="rounded-lg px-3 py-2 font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
-              >
-                All Tools
-              </a>
-            </nav>
-          )
-        }
+        <div class="flex items-center gap-2">
+          {
+            isHome && (
+              <nav class="flex items-center gap-1">
+                <a
+                  href="/"
+                  class="type-body-sm rounded-lg px-3 py-2 font-medium transition-colors hover:bg-canvas-soft hover:text-ink"
+                >
+                  All Tools
+                </a>
+              </nav>
+            )
+          }
+          <ThemeToggle />
+        </div>
       </div>
     </header>
 
@@ -91,25 +121,41 @@ const jsonLdScripts = jsonLd
       <slot />
     </main>
 
-    <footer class="mt-16 border-t border-gray-100 bg-gradient-to-b from-gray-50 to-white">
+    <footer class="mt-16 border-t border-hairline bg-gradient-to-b from-canvas-soft to-canvas">
       <div class="mx-auto max-w-5xl px-4 py-10">
         <div class="mb-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
-          <a href="/" class="flex items-center gap-2 text-gray-900">
-            <span
-              class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-violet-600 text-white"
-            >
-              <LineIcon icon={PhotosDuotone} size={16} class="text-white" />
-            </span>
-            <span class="font-semibold">Imgify</span>
+          <a href="/" class="group flex items-center gap-2">
+            <img
+              src="/logo2.png"
+              alt=""
+              aria-hidden="true"
+              width="32"
+              height="32"
+              class="h-8 w-8 object-contain transition-transform group-hover:scale-105"
+            />
+            <span class:list={['type-subheading', brandNameClass]}>{BRAND_NAME}</span>
           </a>
-          <p class="text-sm text-gray-500">Free online image tools — private &amp; browser-based</p>
+          <p class="type-body-sm">{BRAND_TAGLINE}</p>
         </div>
-        <div class="flex flex-col items-center gap-3 text-sm text-gray-400">
-          <nav class="flex items-center gap-4">
-            <a href="/privacy" class="transition-colors hover:text-gray-600">Privacy</a>
-            <a href="/terms" class="transition-colors hover:text-gray-600">Terms</a>
+        <div class="type-body-sm flex flex-col items-center gap-3 text-mute">
+          <nav class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <a href="/about" class="transition-colors hover:text-body">About</a>
+            <a href="/contact" class="transition-colors hover:text-body">Contact</a>
+            <a href="/privacy" class="transition-colors hover:text-body">Privacy</a>
+            <a href="/terms" class="transition-colors hover:text-body">Terms</a>
           </nav>
-          <p>&copy; {new Date().getFullYear()} Imgify. All tools run locally in your browser.</p>
+          <p>&copy; {new Date().getFullYear()} {BRAND_NAME}. {BRAND_TAGLINE}</p>
+          <p class="type-caption">
+            <a
+              href="https://www.flaticon.com/free-icons/jpg"
+              title="jpg icons"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="transition-colors hover:text-body"
+            >
+              Jpg icons created by Dimitry Miroliubov - Flaticon
+            </a>
+          </p>
         </div>
       </div>
     </footer>

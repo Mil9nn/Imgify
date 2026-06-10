@@ -1,0 +1,19 @@
+---
+import ErrorPageShell from '../components/shared/ErrorPageShell.astro';
+import { errorNavLinks } from '../lib/error-nav-links';
+---
+
+<ErrorPageShell
+  title="Page Not Found — Pickraft"
+  description="The page you're looking for doesn't exist. Browse free online image tools on Pickraft."
+  code="404"
+  eyebrow="page not found"
+  headline="Oops! The page you're looking for doesn't exist."
+  message="The link may be broken, or the page may have been moved. Head back home or pick a tool below."
+  navLinks={errorNavLinks}
+>
+  <a slot="actions" href="/" class="error-btn-primary">Back to homepage</a>
+  <a slot="actions" href="/tools/image-compressor" class="error-btn-secondary">
+    Try image compressor
+  </a>
+</ErrorPageShell>

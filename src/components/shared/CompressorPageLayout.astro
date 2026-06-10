@@ -1,0 +1,176 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { BRAND_NAME } from '../../lib/brand';
+import LineIcon from './LineIcon.astro';
+import { ArrowRightDuotone, ChevronDownDuotone } from '@lineiconshq/free-icons';
+
+interface Faq {
+  q: string;
+  a: string;
+}
+
+interface RelatedTool {
+  href: string;
+  title: string;
+  desc: string;
+}
+
+interface Step {
+  title: string;
+  description: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  headline: string;
+  tagline: string;
+  intro: string;
+  toolName: string;
+  faqs: Faq[];
+  relatedTools: RelatedTool[];
+  steps: Step[];
+}
+
+const {
+  title,
+  description,
+  canonical,
+  headline,
+  tagline,
+  intro,
+  toolName,
+  faqs,
+  relatedTools,
+  steps,
+} = Astro.props;
+
+const site = Astro.site?.href.replace(/\/$/, '') ?? 'https://imgify.com';
+const toolUrl = `${site}${canonical}`;
+
+const webAppJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: `${BRAND_NAME} ${toolName}`,
+  url: toolUrl,
+  applicationCategory: 'MultimediaApplication',
+  operatingSystem: 'Any',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+};
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((faq) => ({
+    '@type': 'Question',
+    name: faq.q,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: faq.a,
+    },
+  })),
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  jsonLd={[webAppJsonLd, faqJsonLd]}
+>
+  <div class="bg-canvas-soft">
+    <section class="compressor-hero relative overflow-hidden">
+      <div class="compressor-mesh" aria-hidden="true"></div>
+      <div class="relative mx-auto max-w-6xl px-4 py-14 md:py-20">
+        <p class="type-mono-eyebrow mb-4">free · browser-local · no signup</p>
+        <h1 class="compressor-headline mb-4 max-w-3xl">{headline}</h1>
+        <p class="type-lead max-w-2xl">{tagline}</p>
+      </div>
+    </section>
+
+    <div class="mx-auto max-w-6xl px-4 pb-16">
+      <slot />
+
+      <div id="ad-slot-top" class="ad-container mt-10">Advertisement</div>
+
+      <section class="my-16">
+        <p class="type-mono-eyebrow mb-3">Workflow</p>
+        <h2 class="type-section-title mb-8">How it works.</h2>
+        <div class="compressor-steps">
+          {
+            steps.map((step, index) => (
+              <div class="compressor-step">
+                <span class="compressor-step-num font-mono">{String(index + 1).padStart(2, '0')}</span>
+                <div>
+                  <h3 class="type-subheading mb-1">{step.title}</h3>
+                  <p class="type-body-sm">{step.description}</p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
+      <div id="ad-slot-mid" class="ad-container">Advertisement</div>
+
+      <section class="compressor-about my-16">
+        <p class="type-mono-eyebrow mb-3 opacity-50">About</p>
+        <h2 class="type-section-title mb-4">Shrink images without leaving the browser.</h2>
+        <p class="type-body opacity-80">{intro}</p>
+      </section>
+
+      <div id="ad-slot-bottom" class="ad-container">Advertisement</div>
+
+      <section class="my-16">
+        <p class="type-mono-eyebrow mb-3">FAQ</p>
+        <h2 class="type-section-title mb-6">Common questions.</h2>
+        <div class="space-y-2">
+          {
+            faqs.map((faq) => (
+              <details class="compressor-faq group">
+                <summary class="type-subheading cursor-pointer px-5 py-4 marker:content-none">
+                  <span class="flex items-center justify-between gap-4">
+                    {faq.q}
+                    <LineIcon
+                      icon={ChevronDownDuotone}
+                      size={20}
+                      class="shrink-0 text-mute transition-transform group-open:rotate-180"
+                    />
+                  </span>
+                </summary>
+                <p class="type-body-sm border-t border-hairline px-5 py-4">{faq.a}</p>
+              </details>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="my-16">
+        <p class="type-mono-eyebrow mb-3">More tools</p>
+        <h2 class="type-section-title mb-6">Related tools.</h2>
+        <div class="grid gap-3 sm:grid-cols-2">
+          {
+            relatedTools.map((tool) => (
+              <a href={tool.href} class="compressor-related group">
+                <LineIcon
+                  icon={ArrowRightDuotone}
+                  size={18}
+                  class="mt-0.5 shrink-0 text-mute transition-all group-hover:translate-x-0.5 group-hover:text-link"
+                />
+                <div>
+                  <h3 class="type-subheading mb-0.5">{tool.title}</h3>
+                  <p class="type-body-sm">{tool.desc}</p>
+                </div>
+              </a>
+            ))
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>

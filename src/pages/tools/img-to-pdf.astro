@@ -1,0 +1,50 @@
+---
+import ToolLayout from '../../components/shared/ToolLayout.astro';
+import DropzoneFallback from '../../components/shared/DropzoneFallback.astro';
+import ImageToPdf from '../../components/tools/ImageToPdf';
+import { getRelatedConversions } from '../../lib/conversion-pages';
+import { imageToPdfPageFaqs } from '../../lib/img-pdf-faqs';
+
+const intro = `Need to convert image to PDF? Pickraft's free image to PDF converter lets you change photos and graphics into a PDF online — no software download, no signup. Whether you want to convert a single image to PDF or add multiple images to one multi-page document, this online image to PDF converter handles it in seconds. Simply upload PNG, JPG, or WebP files, click Create PDF, and download your file. Looking for an img to PDF converter instead? Same tool — upload your imgs, get a PDF. Convert image to PDF free on Windows, Mac, iPhone, and Android. Perfect for sharing scans, combining screenshots, submitting documents, or turning img to PDF on iPhone without installing an app. Your files never leave your browser.`;
+
+const steps = [
+  {
+    title: 'Upload your images',
+    description:
+      'Drag and drop images to convert to PDF, or click to browse. PNG, JPG, and WebP supported — add one image or many.',
+  },
+  {
+    title: 'Create PDF',
+    description:
+      'Click Create PDF to convert image to PDF. Each upload becomes a page in one combined document.',
+  },
+  {
+    title: 'Download your PDF',
+    description:
+      'Download the free PDF instantly — ready to share, print, email, or save to Files on iPhone.',
+  },
+];
+
+const relatedTools = [...getRelatedConversions('img-to-pdf', 3)];
+---
+
+<ToolLayout
+  title="Image to PDF Converter Free — Convert Image to PDF Online | Pickraft"
+  description="Free image to PDF converter. Convert image to PDF online — combine JPG, PNG & WebP into one PDF. Img to PDF free, no download. Works on iPhone, Mac & Windows."
+  canonical="/tools/img-to-pdf"
+  tagline="Convert image to PDF free online — free image to PDF converter, no signup or download"
+  intro={intro}
+  accentColor="emerald"
+  toolName="Image to PDF Converter"
+  faqs={imageToPdfPageFaqs}
+  relatedTools={relatedTools}
+  steps={steps}
+>
+  <ImageToPdf client:only="react" uploadHint="Drop images here to convert to PDF">
+    <DropzoneFallback
+      slot="fallback"
+      hint="Drop images here to convert to PDF"
+      subhint="PNG, JPG, WEBP — free image to PDF converter, no download"
+    />
+  </ImageToPdf>
+</ToolLayout>

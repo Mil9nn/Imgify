@@ -1,0 +1,62 @@
+---
+import CompressorPageLayout from '../../components/shared/CompressorPageLayout.astro';
+import DropzoneFallback from '../../components/shared/DropzoneFallback.astro';
+import ImageCompressor from '../../components/tools/ImageCompressor';
+import { getRelatedConversions } from '../../lib/conversion-pages';
+import { imageCompressorPageFaqs } from '../../lib/image-compressor-faqs';
+
+const intro = `Pickraft's free image compressor shrinks PNG, JPG, and WebP files right in your browser — no upload to a server, no account, no watermarks. Choose lossy compression to cut file size with a quality slider you control, or switch to lossless mode to preserve every pixel. Batch-compress dozens of images and download them individually or as a ZIP. Perfect for speeding up websites, reducing email attachment sizes, and optimizing photos before sharing on social media. Your files never leave your device.`;
+
+const steps = [
+  {
+    title: 'Upload your images',
+    description:
+      'Drag and drop PNG, JPG, or WebP files — or click to browse. Add one image or compress an entire folder at once.',
+  },
+  {
+    title: 'Choose mode and quality',
+    description:
+      'Pick lossy for maximum size reduction with a quality slider, or lossless to preserve full fidelity. Select an output format if needed.',
+  },
+  {
+    title: 'Download compressed files',
+    description:
+      'Hit Compress, review the before/after sizes, then download individually or grab everything as a ZIP archive.',
+  },
+];
+
+const relatedTools = [
+  ...getRelatedConversions('jpg-to-webp', 2),
+  {
+    href: '/tools/heic-to-jpg',
+    title: 'HEIC to JPG Converter',
+    desc: 'Convert iPhone HEIC photos to universally compatible JPEG.',
+  },
+  {
+    href: '/tools/img-to-pdf',
+    title: 'Image to PDF Converter',
+    desc: 'Combine images into a single multi-page PDF document.',
+  },
+];
+---
+
+<CompressorPageLayout
+  title="Image Compressor — Free Online Compress Images | Lossy & Lossless | Pickraft"
+  description="Free image compressor online. Compress PNG, JPG & WebP with lossy or lossless mode and quality control. Shrink images in your browser — no signup."
+  canonical="/tools/image-compressor"
+  headline="Compress images without the upload."
+  tagline="Lossy and lossless compression with quality control — PNG, JPG, and WebP, processed locally in your browser."
+  intro={intro}
+  toolName="Image Compressor"
+  faqs={imageCompressorPageFaqs}
+  relatedTools={relatedTools}
+  steps={steps}
+>
+  <ImageCompressor client:only="react" uploadHint="Drop images to compress">
+    <DropzoneFallback
+      slot="fallback"
+      hint="Drop images to compress"
+      subhint="PNG, JPG, WEBP — loading compressor…"
+    />
+  </ImageCompressor>
+</CompressorPageLayout>

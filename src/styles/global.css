@@ -1,19 +1,86 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Typography scale — aligned with DESIGN.md / Geist tokens */
+  --text-display-xl: 3rem;
+  --text-display-xl--line-height: 1;
+  --text-display-xl--letter-spacing: -0.06em;
+
+  --text-display-lg: 2rem;
+  --text-display-lg--line-height: 2.5rem;
+  --text-display-lg--letter-spacing: -0.04em;
+
+  --text-display-md: 1.5rem;
+  --text-display-md--line-height: 2rem;
+  --text-display-md--letter-spacing: -0.04em;
+
+  --text-display-sm: 1.25rem;
+  --text-display-sm--line-height: 1.75rem;
+  --text-display-sm--letter-spacing: -0.03em;
+
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.75rem;
+
+  --text-body-md: 1rem;
+  --text-body-md--line-height: 1.5rem;
+
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.25rem;
+  --text-body-sm--letter-spacing: -0.02em;
+
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1rem;
+
+  /* Semantic text colors */
+  --color-ink: #171717;
+  --color-body: #4d4d4d;
+  --color-mute: #888888;
+
   --color-accent-blue: #2563eb;
   --color-accent-violet: #7c3aed;
   --color-accent-emerald: #059669;
+
+  /* DESIGN.md surface tokens */
+  --color-canvas: #ffffff;
+  --color-canvas-soft: #fafafa;
+  --color-canvas-soft-2: #f5f5f5;
+  --color-hairline: #ebebeb;
+  --color-link: #0070f3;
+  --color-error: #ee0000;
+  --color-primary: #171717;
+  --color-on-primary: #ffffff;
+
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
 }
 
 @layer base {
   html {
     @apply scroll-smooth;
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+
+    --color-ink: #ededed;
+    --color-body: #a1a1a1;
+    --color-mute: #737373;
+    --color-canvas: #171717;
+    --color-canvas-soft: #0a0a0a;
+    --color-canvas-soft-2: #262626;
+    --color-hairline: #2e2e2e;
+    --color-link: #3291ff;
+    --color-error: #ff6666;
+    --color-primary: #ededed;
+    --color-on-primary: #171717;
   }
 
   body {
-    @apply bg-white text-gray-900 antialiased;
+    @apply bg-canvas-soft font-sans text-body-md text-body antialiased transition-colors duration-200;
   }
 
   details > summary {
@@ -26,18 +93,271 @@
 }
 
 @layer components {
+  /* ── Display ── */
+  .type-hero {
+    @apply text-display-lg font-semibold tracking-[-0.04em] text-ink md:text-display-xl md:tracking-[-0.06em];
+  }
+
+  .type-page-title {
+    @apply text-display-lg font-semibold text-ink;
+  }
+
+  .type-tool-header-title {
+    @apply text-[1.625rem] font-semibold leading-[2.125rem] tracking-[-0.04em] text-ink;
+  }
+
+  .type-tool-header-lead {
+    @apply text-body-md leading-relaxed text-body;
+  }
+
+  .type-section-title {
+    @apply text-display-md font-semibold text-ink;
+  }
+
+  .type-card-title {
+    @apply text-display-sm font-semibold text-ink;
+  }
+
+  .type-subheading {
+    @apply text-body-md font-semibold text-ink;
+  }
+
+  /* ── Body ── */
+  .type-lead {
+    @apply text-body-lg leading-relaxed text-body;
+  }
+
+  .type-body {
+    @apply text-body-md leading-relaxed text-body;
+  }
+
+  .type-body-sm {
+    @apply text-body-sm leading-relaxed text-body;
+  }
+
+  /* ── Meta / UI ── */
+  .type-caption {
+    @apply text-caption text-mute;
+  }
+
+  .type-eyebrow {
+    @apply text-caption font-medium uppercase tracking-wide text-mute;
+  }
+
+  .type-label {
+    @apply text-body-sm font-medium text-ink;
+  }
+
+  .type-button {
+    @apply text-body-sm font-medium;
+  }
+
+  .type-badge {
+    @apply text-caption font-medium;
+  }
+
   .ad-container {
-    @apply my-6 flex min-h-[90px] items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-400;
+    @apply my-6 flex min-h-[90px] items-center justify-center rounded-lg border border-dashed border-hairline bg-canvas-soft text-body-sm leading-relaxed text-mute;
   }
 
   .checkerboard {
-    background-color: #fff;
+    background-color: var(--color-canvas);
     background-image:
-      linear-gradient(45deg, #e5e5e5 25%, transparent 25%),
-      linear-gradient(-45deg, #e5e5e5 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, #e5e5e5 75%),
-      linear-gradient(-45deg, transparent 75%, #e5e5e5 75%);
+      linear-gradient(45deg, var(--color-canvas-soft-2) 25%, transparent 25%),
+      linear-gradient(-45deg, var(--color-canvas-soft-2) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--color-canvas-soft-2) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--color-canvas-soft-2) 75%);
     background-size: 16px 16px;
     background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  }
+
+  .theme-toggle {
+    @apply relative flex h-9 w-9 items-center justify-center rounded-full border border-hairline bg-canvas text-ink transition-colors hover:bg-canvas-soft;
+  }
+
+  .theme-toggle-icon {
+    @apply absolute transition-transform duration-200;
+  }
+
+  .theme-toggle-icon--sun {
+    @apply opacity-100 scale-100;
+  }
+
+  .theme-toggle-icon--moon {
+    @apply opacity-0 scale-75;
+  }
+
+  .dark .theme-toggle-icon--sun {
+    @apply opacity-0 scale-75;
+  }
+
+  .dark .theme-toggle-icon--moon {
+    @apply opacity-100 scale-100;
+  }
+
+  .surface-card {
+    @apply rounded-lg border border-hairline bg-canvas;
+  }
+
+  .surface-muted {
+    @apply rounded-lg border border-hairline bg-canvas-soft;
+  }
+
+  .surface-inverted {
+    @apply bg-primary text-on-primary;
+  }
+
+  .surface-inverted :is(.type-section-title, .type-body, .type-mono-eyebrow, .type-caption, h1, h2, h3, p) {
+    color: var(--color-on-primary);
+  }
+
+  /* ── Compressor page (DESIGN.md conventions) ── */
+  .type-mono-eyebrow {
+    @apply font-mono text-caption uppercase tracking-widest text-mute;
+  }
+
+  .compressor-headline {
+    @apply text-display-lg font-semibold tracking-[-0.04em] text-ink md:text-display-xl md:tracking-[-0.06em];
+  }
+
+  .compressor-mesh {
+    @apply pointer-events-none absolute inset-x-0 top-0 h-full opacity-60;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 40%, #007cf033 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 80% 20%, #7928ca22 0%, transparent 70%),
+      radial-gradient(ellipse 50% 50% at 60% 80%, #00dfd822 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 10% 80%, #ff008015 0%, transparent 70%);
+  }
+
+  .compressor-workspace {
+    @apply -mt-6 grid gap-6 lg:grid-cols-[280px_1fr] lg:gap-8;
+  }
+
+  .compressor-panel {
+    @apply h-fit rounded-lg border border-hairline bg-canvas p-6 shadow-[0px_1px_1px_#00000005,0px_2px_2px_#0000000a,0_0_0_1px_#00000014_inset] lg:sticky lg:top-20;
+  }
+
+  .compressor-main {
+    @apply min-w-0;
+  }
+
+  .compressor-dropzone {
+    @apply cursor-pointer rounded-lg border border-dashed border-hairline bg-canvas p-10 text-center transition-colors;
+    box-shadow: 0 0 0 1px #00000014 inset;
+  }
+
+  .compressor-dropzone:hover {
+    @apply border-link/40 bg-canvas-soft;
+  }
+
+  .compressor-dropzone--active {
+    @apply border-link bg-link/5;
+  }
+
+  .compressor-dropzone-icon {
+    @apply mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-hairline bg-canvas-soft text-ink;
+  }
+
+  .compressor-range {
+    @apply h-1.5 appearance-none rounded-full bg-canvas-soft-2 accent-ink;
+  }
+
+  .compressor-select {
+    @apply h-10 rounded-md border border-hairline bg-canvas px-3 text-body-sm text-ink outline-none transition-colors focus:border-ink;
+  }
+
+  .compressor-stats {
+    @apply rounded-md bg-primary p-4 text-on-primary;
+  }
+
+  .compressor-btn-primary {
+    @apply w-full rounded-full bg-primary px-5 py-2.5 text-body-sm font-medium text-on-primary transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .compressor-btn-secondary {
+    @apply w-full rounded-full border border-hairline bg-canvas px-5 py-2.5 text-body-sm font-medium text-ink transition-colors hover:bg-canvas-soft disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .compressor-icon-btn {
+    @apply rounded-full p-1.5 text-ink transition-colors hover:bg-canvas-soft;
+  }
+
+  .compressor-file-list {
+    @apply overflow-hidden rounded-lg border border-hairline bg-canvas;
+    box-shadow: 0px 1px 1px #00000005, 0px 2px 2px #0000000a, 0 0 0 1px #00000014 inset;
+  }
+
+  .compressor-file-header {
+    @apply hidden gap-4 border-b border-hairline bg-canvas-soft px-4 py-3 font-mono text-caption uppercase tracking-widest text-mute md:grid;
+    grid-template-columns: 1fr 5rem 5rem 8rem 4rem;
+  }
+
+  .compressor-file-row {
+    @apply grid items-center gap-3 border-b border-hairline px-4 py-3 last:border-b-0;
+    grid-template-columns: 1fr auto;
+  }
+
+  @media (min-width: 768px) {
+    .compressor-file-row {
+      grid-template-columns: 1fr 5rem 5rem 8rem 4rem;
+      gap: 1rem;
+    }
+  }
+
+  .compressor-step {
+    @apply flex gap-5 border-t border-hairline py-6 first:border-t-0 first:pt-0;
+  }
+
+  .compressor-step-num {
+    @apply text-caption text-mute;
+  }
+
+  .compressor-about {
+    @apply rounded-lg bg-primary p-8 text-on-primary md:p-10;
+    box-shadow: 0px 2px 2px #0000000a, 0px 8px 16px -4px #0000000a;
+  }
+
+  .compressor-faq {
+    @apply rounded-md border border-hairline bg-canvas;
+    box-shadow: 0 0 0 1px #00000014 inset;
+  }
+
+  .compressor-related {
+    @apply flex items-start gap-3 rounded-md border border-hairline bg-canvas p-4 transition-colors hover:border-hairline hover:bg-canvas-soft;
+    box-shadow: 0 0 0 1px #00000014 inset;
+  }
+
+  /* ── Error pages (DESIGN.md conventions) ── */
+  .error-hero {
+    @apply bg-canvas;
+  }
+
+  .error-mesh {
+    @apply pointer-events-none absolute inset-x-0 top-0 h-full opacity-50;
+    background:
+      radial-gradient(ellipse 70% 45% at 30% 35%, #007cf028 0%, transparent 70%),
+      radial-gradient(ellipse 55% 35% at 75% 25%, #7928ca18 0%, transparent 70%),
+      radial-gradient(ellipse 45% 45% at 55% 75%, #00dfd818 0%, transparent 70%);
+  }
+
+  .error-code {
+    @apply text-display-xl font-medium tracking-tight text-mute;
+  }
+
+  .error-headline {
+    @apply text-display-lg font-semibold tracking-[-0.04em] text-ink md:text-display-xl md:tracking-[-0.06em];
+  }
+
+  .error-btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-primary px-6 py-2.5 text-body-sm font-medium text-on-primary transition-colors hover:opacity-90;
+  }
+
+  .error-btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-hairline bg-canvas px-6 py-2.5 text-body-sm font-medium text-ink transition-colors hover:bg-canvas-soft;
+  }
+
+  .error-nav-link {
+    @apply flex items-start gap-3 rounded-md border border-hairline bg-canvas p-4 transition-colors hover:bg-canvas-soft;
+    box-shadow: 0 0 0 1px #00000014 inset;
   }
 }
