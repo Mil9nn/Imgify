@@ -321,42 +321,44 @@ export default function ImageCompressor({ uploadHint }: ImageCompressorProps) {
       </aside>
 
       <div className="compressor-main space-y-4">
-        <div
-          role="button"
-          tabIndex={0}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setIsDragging(true);
-          }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={handleDrop}
-          onClick={() => inputRef.current?.click()}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
-          }}
-          className={`compressor-dropzone ${isDragging ? 'compressor-dropzone--active' : ''}`}
-        >
-          <input
-            ref={inputRef}
-            type="file"
-            accept={ACCEPTED_TYPES}
-            multiple
-            className="hidden"
-            onChange={(e) => {
-              if (e.target.files) addFiles(e.target.files);
-              e.target.value = '';
+        {files.length === 0 && (
+          <div
+            role="button"
+            tabIndex={0}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
             }}
-          />
-          <span className="compressor-dropzone-icon">
-            <Icon icon={Upload1Duotone} size={28} />
-          </span>
-          <p className="type-label mt-4">
-            {uploadHint ?? 'Drop images here or click to browse'}
-          </p>
-          <p className="type-body-sm mt-1">
-            PNG, JPG, WebP — processed locally in your browser
-          </p>
-        </div>
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleDrop}
+            onClick={() => inputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
+            }}
+            className={`compressor-dropzone ${isDragging ? 'compressor-dropzone--active' : ''}`}
+          >
+            <input
+              ref={inputRef}
+              type="file"
+              accept={ACCEPTED_TYPES}
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files) addFiles(e.target.files);
+                e.target.value = '';
+              }}
+            />
+            <span className="compressor-dropzone-icon">
+              <Icon icon={Upload1Duotone} size={28} />
+            </span>
+            <p className="type-label mt-4">
+              {uploadHint ?? 'Drop images here or click to browse'}
+            </p>
+            <p className="type-body-sm mt-1">
+              PNG, JPG, WebP — processed locally in your browser
+            </p>
+          </div>
+        )}
 
         {files.length > 0 && (
           <div className="compressor-file-list">
@@ -382,7 +384,7 @@ export default function ImageCompressor({ uploadHint }: ImageCompressorProps) {
 
               return (
                 <div key={fileEntry.id} className="compressor-file-row group">
-                  <div className="flex min-w-0 items-center gap-3">
+                  <div className="compressor-file-row__info flex min-w-0 items-center gap-3">
                     <div className="checkerboard h-10 w-10 shrink-0 overflow-hidden rounded-md ring-1 ring-hairline">
                       <img
                         src={fileEntry.compressedUrl ?? fileEntry.originalUrl}
@@ -402,41 +404,52 @@ export default function ImageCompressor({ uploadHint }: ImageCompressorProps) {
                     </div>
                   </div>
 
-                  <p className="type-caption font-mono text-body">
-                    {formatFileSize(fileEntry.originalSize)}
-                  </p>
+                  <div className="compressor-file-row__stats">
+                    <div>
+                      <span className="compressor-file-stat-label">Original</span>
+                      <p className="type-caption font-mono text-body">
+                        {formatFileSize(fileEntry.originalSize)}
+                      </p>
+                    </div>
 
-                  <p className="type-caption font-mono text-ink">
-                    {isDone && fileEntry.compressedSize !== null
-                      ? formatFileSize(fileEntry.compressedSize)
-                      : '—'}
-                  </p>
+                    <div>
+                      <span className="compressor-file-stat-label">Compressed</span>
+                      <p className="type-caption font-mono text-ink">
+                        {isDone && fileEntry.compressedSize !== null
+                          ? formatFileSize(fileEntry.compressedSize)
+                          : '—'}
+                      </p>
+                    </div>
 
-                  <div className="flex items-center gap-2">
-                    {isDone && comparison ? (
-                      <>
-                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-canvas-soft-2">
-                          <div
-                            className={`h-full rounded-full transition-all ${
-                              comparison.tone === 'smaller' ? 'bg-link' : 'bg-mute'
-                            }`}
-                            style={{ width: `${Math.max(savingsPct, 4)}%` }}
-                          />
-                        </div>
-                        <span
-                          className={`type-caption shrink-0 font-mono ${
-                            comparison.tone === 'smaller' ? 'text-link' : 'text-mute'
-                          }`}
-                        >
-                          {comparison.label}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="type-caption text-mute">—</span>
-                    )}
+                    <div>
+                      <span className="compressor-file-stat-label">Savings</span>
+                      <div className="flex items-center gap-2">
+                        {isDone && comparison ? (
+                          <>
+                            <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-canvas-soft-2">
+                              <div
+                                className={`h-full rounded-full transition-all ${
+                                  comparison.tone === 'smaller' ? 'bg-link' : 'bg-mute'
+                                }`}
+                                style={{ width: `${Math.max(savingsPct, 4)}%` }}
+                              />
+                            </div>
+                            <span
+                              className={`type-caption shrink-0 font-mono ${
+                                comparison.tone === 'smaller' ? 'text-link' : 'text-mute'
+                              }`}
+                            >
+                              {comparison.label}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="type-caption text-mute">—</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex items-center justify-end gap-1">
+                  <div className="compressor-file-row__actions flex items-center justify-end gap-1 self-start">
                     {isDone && (
                       <button
                         type="button"

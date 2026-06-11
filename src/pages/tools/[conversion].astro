@@ -7,6 +7,7 @@ import {
   getConversionSteps,
   getRelatedConversions,
 } from '../../lib/conversion-pages';
+import { formatsFromConversionSlug } from '../../lib/format-icons';
 
 export function getStaticPaths() {
   return conversionPages.map((page) => ({
@@ -16,6 +17,7 @@ export function getStaticPaths() {
 }
 
 const { page } = Astro.props;
+const formats = formatsFromConversionSlug(page.slug)!;
 
 const steps = getConversionSteps(
   page.slug.split('-to-')[0].toUpperCase(),
@@ -40,7 +42,8 @@ const relatedTools = [
   canonical={`/tools/${page.slug}`}
   tagline={page.tagline}
   intro={page.intro}
-  accentColor="blue"
+  fromFormat={formats.from}
+  toFormat={formats.to}
   toolName={page.toolName}
   faqs={page.faqs}
   relatedTools={relatedTools}

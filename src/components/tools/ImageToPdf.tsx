@@ -129,60 +129,87 @@ export default function ImageToPdf({ uploadHint }: ImageToPdfProps) {
       : 'Create PDF';
 
   return (
-    <div className="space-y-6">
-      <div
-        role="button"
-        tabIndex={0}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setIsDragging(true);
-        }}
-        onDragLeave={() => setIsDragging(false)}
-        onDrop={handleDrop}
-        onClick={() => inputRef.current?.click()}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
-        }}
-        className={`cursor-pointer rounded-xl border-2 border-dashed p-10 text-center transition-colors ${
-          isDragging
-            ? 'border-link bg-link/10'
-            : 'border-hairline bg-canvas-soft hover:border-link/60 hover:bg-link/5'
-        }`}
-      >
-        <input
-          ref={inputRef}
-          type="file"
-          accept={ACCEPTED_TYPES}
-          multiple
-          className="hidden"
-          onChange={(e) => {
-            if (e.target.files) addFiles(e.target.files);
-            e.target.value = '';
-          }}
-        />
-        <div className="mb-3 flex justify-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-canvas-soft text-link">
-            <Icon icon={Upload1Duotone} size={32} />
-          </span>
+    <div className="compressor-workspace">
+      <aside className="compressor-panel">
+        {files.length > 0 && (
+          <div className="compressor-stats mb-6">
+            <p className="type-mono-eyebrow mb-1 opacity-60">Pages</p>
+            <p className="type-subheading">{files.length}</p>
+            {hasPdf && pdfSize !== null && (
+              <p className="type-caption mt-2 opacity-70">
+                PDF size: {formatFileSize(pdfSize)}
+              </p>
+            )}
+          </div>
+        )}
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={convertToPdf}
+            disabled={isConverting || files.length === 0}
+            className="compressor-btn-primary"
+          >
+            {convertLabel}
+          </button>
+          {files.length > 0 && (
+            <button
+              type="button"
+              onClick={downloadPdf}
+              disabled={!hasPdf}
+              className="compressor-btn-secondary inline-flex items-center justify-center gap-2"
+            >
+              <Icon icon={Download1Duotone} size={18} />
+              Download PDF
+            </button>
+          )}
         </div>
-        <p className="type-label">
-          {uploadHint ?? 'Drag images here or click to upload'}
-        </p>
-        <p className="type-body-sm mt-1">
-          {files.length > 0
-            ? 'PNG, JPG, WEBP — click to add more images'
-            : 'PNG, JPG, WEBP — multiple images become one multi-page PDF'}
-        </p>
-      </div>
+      </aside>
+
+      <div className="compressor-main space-y-4">
+        {files.length === 0 && (
+          <div
+            role="button"
+            tabIndex={0}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
+            }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleDrop}
+            onClick={() => inputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
+            }}
+            className={`compressor-dropzone ${isDragging ? 'compressor-dropzone--active' : ''}`}
+          >
+            <input
+              ref={inputRef}
+              type="file"
+              accept={ACCEPTED_TYPES}
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files) addFiles(e.target.files);
+                e.target.value = '';
+              }}
+            />
+            <span className="compressor-dropzone-icon">
+              <Icon icon={Upload1Duotone} size={24} />
+            </span>
+            <p className="type-label mt-4">
+              {uploadHint ?? 'Drag images here or click to upload'}
+            </p>
+            <p className="type-body-sm mt-1">
+              PNG, JPG, WEBP — multiple images become one multi-page PDF
+            </p>
+          </div>
+        )}
 
       {files.length > 0 && (
         <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          <div className="compressor-file-grid">
             {files.map((fileEntry, index) => (
-              <div
-                key={fileEntry.id}
-                className="group relative overflow-hidden rounded-xl border border-hairline bg-canvas"
-              >
+              <div key={fileEntry.id} className="compressor-file-card group">
                 <button
                   type="button"
                   onClick={() => removeFile(fileEntry.id)}
@@ -192,18 +219,18 @@ export default function ImageToPdf({ uploadHint }: ImageToPdfProps) {
                   <Icon icon={XmarkDuotone} size={16} className="text-current" />
                 </button>
 
-                <div className="relative aspect-square bg-canvas-soft">
+                <div className="compressor-file-card-preview">
                   <img
                     src={fileEntry.originalUrl}
                     alt={`Page ${index + 1}`}
                     className="h-full w-full object-cover"
                   />
-                  <span className="type-caption absolute bottom-1.5 left-1.5 rounded bg-gray-800/80 px-1.5 py-0.5 font-medium text-white">
-                    Page {index + 1}
+                  <span className="compressor-file-card-badge">
+                    {String(index + 1).padStart(2, '0')}
                   </span>
                 </div>
 
-                <div className="space-y-0.5 p-2">
+                <div className="compressor-file-card-meta">
                   <p className="type-caption truncate font-medium text-ink">
                     {fileEntry.original.name}
                   </p>
@@ -222,38 +249,14 @@ export default function ImageToPdf({ uploadHint }: ImageToPdfProps) {
           )}
 
           {hasPdf && pdfSize !== null && (
-            <div className="rounded-xl border border-green-200 bg-green-50 px-5 py-4 dark:border-green-900/50 dark:bg-green-950/30">
-              <p className="type-body-sm font-medium text-green-900 dark:text-green-200">
-                PDF ready — {files.length} page{files.length !== 1 ? 's' : ''},{' '}
-                {formatFileSize(pdfSize)}
-              </p>
-              <p className="type-caption mt-1 text-green-700 dark:text-green-400">
-                {formatFileSize(totalOriginalSize)} of images combined into one PDF
-              </p>
-            </div>
+            <p className="type-body-sm text-body">
+              {formatFileSize(totalOriginalSize)} of images combined into{' '}
+              {formatFileSize(pdfSize)} PDF.
+            </p>
           )}
-
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={convertToPdf}
-              disabled={isConverting || files.length === 0}
-              className="type-button rounded-lg bg-blue-600 px-6 py-2.5 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {convertLabel}
-            </button>
-            <button
-              type="button"
-              onClick={downloadPdf}
-              disabled={!hasPdf}
-              className="type-button inline-flex items-center gap-2 rounded-lg border border-hairline bg-canvas px-6 py-2.5 text-ink hover:bg-canvas-soft disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Icon icon={Download1Duotone} size={18} />
-              Download PDF
-            </button>
-          </div>
         </>
       )}
+      </div>
     </div>
   );
 }

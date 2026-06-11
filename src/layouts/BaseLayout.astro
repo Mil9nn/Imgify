@@ -23,7 +23,6 @@ const {
 
 const site = Astro.site?.href.replace(/\/$/, '') ?? 'https://imgify.com';
 const canonicalUrl = canonical ? `${site}${canonical}` : Astro.url.href;
-const isHome = Astro.url.pathname === '/';
 const jsonLdScripts = jsonLd
   ? Array.isArray(jsonLd)
     ? jsonLd
@@ -99,21 +98,7 @@ const brandNameClass =
           />
           <span class:list={['type-card-title', brandNameClass]}>{BRAND_NAME}</span>
         </a>
-        <div class="flex items-center gap-2">
-          {
-            isHome && (
-              <nav class="flex items-center gap-1">
-                <a
-                  href="/"
-                  class="type-body-sm rounded-lg px-3 py-2 font-medium transition-colors hover:bg-canvas-soft hover:text-ink"
-                >
-                  All Tools
-                </a>
-              </nav>
-            )
-          }
-          <ThemeToggle />
-        </div>
+        <ThemeToggle />
       </div>
     </header>
 
@@ -145,17 +130,6 @@ const brandNameClass =
             <a href="/terms" class="transition-colors hover:text-body">Terms</a>
           </nav>
           <p>&copy; {new Date().getFullYear()} {BRAND_NAME}. {BRAND_TAGLINE}</p>
-          <p class="type-caption">
-            <a
-              href="https://www.flaticon.com/free-icons/jpg"
-              title="jpg icons"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="transition-colors hover:text-body"
-            >
-              Jpg icons created by Dimitry Miroliubov - Flaticon
-            </a>
-          </p>
         </div>
       </div>
     </footer>

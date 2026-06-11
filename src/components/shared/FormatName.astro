@@ -1,31 +1,26 @@
 ---
-import { FORMAT_ICONS } from '../../lib/format-icons';
+import { formatBadgeClass } from '../../lib/format-icons';
 
 interface Props {
   format: string;
-  size?: 'default' | 'sm';
+  size?: 'sm' | 'default' | 'lg';
+  emphasis?: 'source' | 'destination';
 }
 
-const { format, size = 'default' } = Astro.props;
-
-const icon = FORMAT_ICONS[format];
-const isSm = size === 'sm';
+const { format, size = 'default', emphasis } = Astro.props;
 ---
 
-{
-  icon ? (
-    <span class="inline-flex items-center gap-1">
-      <img
-        src={icon}
-        alt=""
-        aria-hidden="true"
-        width={isSm ? 18 : 30}
-        height={isSm ? 22 : 36}
-        class:list={['w-auto shrink-0', isSm ? 'h-[1em]' : 'h-[1.7em]']}
-      />
-      <span class="text-ink">{format}</span>
-    </span>
-  ) : (
-    <span class="text-ink">{format}</span>
-  )
-}
+<span
+  class:list={[
+    'type-format-badge inline-flex items-center font-mono uppercase tracking-wide',
+    formatBadgeClass(format),
+    size === 'sm' && 'px-2 py-0.5 text-caption font-medium',
+    size === 'default' && 'px-2.5 py-1 text-body-sm font-medium',
+    size === 'lg' &&
+      'px-2.5 py-1 text-caption font-semibold sm:px-3 sm:py-1.5 sm:text-body-sm',
+    emphasis === 'source' && 'opacity-90',
+    emphasis === 'destination' && 'shadow-sm ring-1 ring-black/5 dark:ring-white/10',
+  ]}
+>
+  {format}
+</span>

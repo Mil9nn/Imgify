@@ -209,60 +209,12 @@ export default function ImageConverter({
   const bulkDownloadLabel = isSingle ? 'Download' : `Download All as ZIP (${doneCount})`;
 
   return (
-    <div className="space-y-6">
-      <div
-        role="button"
-        tabIndex={0}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setIsDragging(true);
-        }}
-        onDragLeave={() => setIsDragging(false)}
-        onDrop={handleDrop}
-        onClick={() => inputRef.current?.click()}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
-        }}
-        className={`cursor-pointer rounded-xl border-2 border-dashed p-10 text-center transition-colors ${
-          isDragging
-            ? 'border-link bg-link/10'
-            : 'border-hairline bg-canvas-soft hover:border-link/60 hover:bg-link/5'
-        }`}
-      >
-        <input
-          ref={inputRef}
-          type="file"
-          accept={ACCEPTED_TYPES}
-          multiple
-          className="hidden"
-          onChange={(e) => {
-            if (e.target.files) addFiles(e.target.files);
-            e.target.value = '';
-          }}
-        />
-        <div className="mb-3 flex justify-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-canvas-soft text-link">
-            <Icon icon={Upload1Duotone} size={32} />
-          </span>
-        </div>
-        <p className="type-label">
-          {uploadHint ?? 'Drag images here or click to upload'}
-        </p>
-        <p className="type-body-sm mt-1">
-          {uploadHint
-            ? files.length > 0
-              ? 'or click to add more images'
-              : 'or click to browse — bulk upload supported'
-            : files.length > 0
-              ? 'PNG, JPG, WEBP — click to add more'
-              : 'PNG, JPG, WEBP — bulk upload supported'}
-        </p>
-      </div>
-
-      <div className="rounded-xl border border-hairline bg-canvas p-5">
-        <label htmlFor="quality" className="type-label mb-1 block">
-          Quality: {quality}
+    <div className="compressor-workspace">
+      <aside className="compressor-panel">
+        <label htmlFor="quality" className="type-mono-eyebrow mb-3 block normal-case">
+          Quality
         </label>
+        <p className="type-subheading mb-3">{quality}</p>
         <input
           id="quality"
           type="range"
@@ -271,19 +223,90 @@ export default function ImageConverter({
           value={quality}
           onChange={(e) => setQuality(Number(e.target.value))}
           disabled={format === 'png'}
-          className="w-full accent-blue-600 disabled:opacity-50"
+          className="compressor-range mb-4 w-full disabled:opacity-50"
         />
         {format === 'png' && (
-          <p className="type-caption mt-1 text-amber-700">
+          <p className="type-caption mb-6 text-amber-700 dark:text-amber-400">
             PNG is lossless — converting from JPG usually makes files much larger. Use WebP for
             smaller output.
           </p>
         )}
-      </div>
+        {files.length > 0 && (
+          <div className="compressor-stats flex justify-between mb-6">
+            <p className="type-mono-eyebrow mb-1 opacity-60">Progress</p>
+            <p className="type-subheading">
+              {doneCount} / {files.length} converted
+            </p>
+          </div>
+        )}
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={convertAll}
+            disabled={isConverting || files.length === 0}
+            className="compressor-btn-primary"
+          >
+            {convertLabel}
+          </button>
+          {files.length > 0 && (
+            <button
+              type="button"
+              onClick={handleBulkDownload}
+              disabled={doneCount === 0}
+              className="compressor-btn-secondary inline-flex items-center justify-center gap-2"
+            >
+              <Icon icon={Download1Duotone} size={18} />
+              {bulkDownloadLabel}
+            </button>
+          )}
+        </div>
+      </aside>
+
+      <div className="compressor-main space-y-4">
+        {files.length === 0 && (
+          <div
+            role="button"
+            tabIndex={0}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
+            }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleDrop}
+            onClick={() => inputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
+            }}
+            className={`compressor-dropzone ${isDragging ? 'compressor-dropzone--active' : ''}`}
+          >
+            <input
+              ref={inputRef}
+              type="file"
+              accept={ACCEPTED_TYPES}
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files) addFiles(e.target.files);
+                e.target.value = '';
+              }}
+            />
+            <span className="compressor-dropzone-icon">
+              <Icon icon={Upload1Duotone} size={24} />
+            </span>
+            <p className="type-label mt-4">
+              {uploadHint ?? 'Drag images here or click to upload'}
+            </p>
+            <p className="type-body-sm mt-1">
+              {uploadHint
+                ? 'or click to browse — bulk upload supported'
+                : 'PNG, JPG, WEBP — bulk upload supported'}
+            </p>
+          </div>
+        )}
 
       {files.length > 0 && (
         <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          <div className="compressor-file-grid">
             {files.map((fileEntry) => {
               const sizeComparison =
                 fileEntry.convertedSize !== null
@@ -294,10 +317,7 @@ export default function ImageConverter({
               const previewUrl = fileEntry.convertedUrl ?? fileEntry.originalUrl;
 
               return (
-                <div
-                  key={fileEntry.id}
-                  className="group relative overflow-hidden rounded-xl border border-hairline bg-canvas"
-                >
+                <div key={fileEntry.id} className="compressor-file-card group">
                   <button
                     type="button"
                     onClick={() => removeFile(fileEntry.id)}
@@ -307,7 +327,7 @@ export default function ImageConverter({
                     <Icon icon={XmarkDuotone} size={16} className="text-current" />
                   </button>
 
-                  <div className="relative aspect-square bg-canvas-soft">
+                  <div className="compressor-file-card-preview">
                     <img
                       src={previewUrl}
                       alt={isDone ? 'Converted' : 'Original'}
@@ -318,16 +338,12 @@ export default function ImageConverter({
                         Converting…
                       </div>
                     )}
-                    {isDone && (
-                      <span className="type-caption absolute bottom-1.5 left-1.5 rounded bg-green-600/90 px-1.5 py-0.5 font-medium text-white">
-                        Converted
-                      </span>
-                    )}
+                    {isDone && <span className="compressor-file-card-badge">Done</span>}
                     {isDone && !isSingle && (
                       <button
                         type="button"
                         onClick={() => downloadSingle(fileEntry)}
-                        className="absolute bottom-1.5 right-1.5 rounded bg-blue-600 p-1.5 text-white opacity-0 shadow-sm transition-opacity hover:bg-blue-700 group-hover:opacity-100"
+                        className="compressor-file-card-download"
                         aria-label="Download"
                       >
                         <Icon icon={Download1Duotone} size={14} />
@@ -335,7 +351,7 @@ export default function ImageConverter({
                     )}
                   </div>
 
-                  <div className="space-y-0.5 p-2">
+                  <div className="compressor-file-card-meta">
                     <p className="type-caption truncate font-medium text-ink">
                       {fileEntry.original.name}
                     </p>
@@ -369,28 +385,9 @@ export default function ImageConverter({
               );
             })}
           </div>
-
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={convertAll}
-              disabled={isConverting || files.length === 0}
-              className="type-button rounded-lg bg-blue-600 px-6 py-2.5 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {convertLabel}
-            </button>
-            <button
-              type="button"
-              onClick={handleBulkDownload}
-              disabled={doneCount === 0}
-              className="type-button inline-flex items-center gap-2 rounded-lg border border-hairline bg-canvas px-6 py-2.5 text-ink hover:bg-canvas-soft disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Icon icon={Download1Duotone} size={18} />
-              {bulkDownloadLabel}
-            </button>
-          </div>
         </>
       )}
+      </div>
     </div>
   );
 }

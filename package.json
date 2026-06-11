@@ -32,5 +32,8 @@
   "overrides": {
     "vite": "^7",
     "@lineiconshq/free-icons": "$@lineiconshq/free-icons"
+  },
+  "devDependencies": {
+    "playwright": "^1.60.0"
   }
 }

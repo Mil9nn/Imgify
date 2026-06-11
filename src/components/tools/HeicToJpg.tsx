@@ -192,56 +192,12 @@ export default function HeicToJpg({ uploadHint }: HeicToJpgProps) {
   const bulkDownloadLabel = isSingle ? 'Download JPG' : `Download All as ZIP (${doneCount})`;
 
   return (
-    <div className="space-y-6">
-      <div
-        role="button"
-        tabIndex={0}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setIsDragging(true);
-        }}
-        onDragLeave={() => setIsDragging(false)}
-        onDrop={handleDrop}
-        onClick={() => inputRef.current?.click()}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
-        }}
-        className={`cursor-pointer rounded-xl border-2 border-dashed p-10 text-center transition-colors ${
-          isDragging
-            ? 'border-violet-500 bg-violet-500/10'
-            : 'border-hairline bg-canvas-soft hover:border-violet-400/60 hover:bg-violet-500/5'
-        }`}
-      >
-        <input
-          ref={inputRef}
-          type="file"
-          accept={ACCEPTED_TYPES}
-          multiple
-          className="hidden"
-          onChange={(e) => {
-            if (e.target.files) addFiles(e.target.files);
-            e.target.value = '';
-          }}
-        />
-        <div className="mb-3 flex justify-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
-            <Icon icon={Upload1Duotone} size={32} />
-          </span>
-        </div>
-        <p className="type-label">
-          {uploadHint ?? 'Drag HEIC files here or click to upload'}
-        </p>
-        <p className="type-body-sm mt-1">
-          {files.length > 0
-            ? '.heic, .heif — click to add more files'
-            : '.heic, .heif — bulk upload supported, free HEIC to JPG converter'}
-        </p>
-      </div>
-
-      <div className="rounded-xl border border-hairline bg-canvas p-5">
-        <label htmlFor="heic-quality" className="type-label mb-1 block">
-          JPEG quality: {quality}
+    <div className="compressor-workspace">
+      <aside className="compressor-panel">
+        <label htmlFor="heic-quality" className="type-mono-eyebrow mb-3 block normal-case">
+          JPEG quality
         </label>
+        <p className="type-subheading mb-3">{quality}</p>
         <input
           id="heic-quality"
           type="range"
@@ -249,16 +205,83 @@ export default function HeicToJpg({ uploadHint }: HeicToJpgProps) {
           max={100}
           value={quality}
           onChange={(e) => setQuality(Number(e.target.value))}
-          className="w-full accent-violet-600"
+          className="compressor-range mb-4 w-full"
         />
-        <p className="type-caption mt-1">
+        <p className="type-caption mb-6">
           85–90 recommended for iPhone photos — balances file size and visual quality.
         </p>
-      </div>
+        {files.length > 0 && (
+          <div className="compressor-stats mb-6">
+            <p className="type-mono-eyebrow mb-1 opacity-60">Progress</p>
+            <p className="type-subheading">
+              {doneCount} / {files.length} converted
+            </p>
+          </div>
+        )}
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={convertAll}
+            disabled={isConverting || files.length === 0}
+            className="compressor-btn-primary"
+          >
+            {convertLabel}
+          </button>
+          {files.length > 0 && (
+            <button
+              type="button"
+              onClick={handleBulkDownload}
+              disabled={doneCount === 0}
+              className="compressor-btn-secondary inline-flex items-center justify-center gap-2"
+            >
+              <Icon icon={Download1Duotone} size={18} />
+              {bulkDownloadLabel}
+            </button>
+          )}
+        </div>
+      </aside>
+
+      <div className="compressor-main space-y-4">
+        {files.length === 0 && (
+          <div
+            role="button"
+            tabIndex={0}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
+            }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleDrop}
+            onClick={() => inputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
+            }}
+            className={`compressor-dropzone ${isDragging ? 'compressor-dropzone--active' : ''}`}
+          >
+            <input
+              ref={inputRef}
+              type="file"
+              accept={ACCEPTED_TYPES}
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files) addFiles(e.target.files);
+                e.target.value = '';
+              }}
+            />
+            <span className="compressor-dropzone-icon">
+              <Icon icon={Upload1Duotone} size={24} />
+            </span>
+            <p className="type-label mt-4">
+              {uploadHint ?? 'Drag HEIC files here or click to upload'}
+            </p>
+            <p className="type-body-sm mt-1">.heic, .heif — bulk upload supported</p>
+          </div>
+        )}
 
       {files.length > 0 && (
         <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          <div className="compressor-file-grid">
             {files.map((fileEntry) => {
               const sizeComparison =
                 fileEntry.convertedSize !== null
@@ -269,10 +292,7 @@ export default function HeicToJpg({ uploadHint }: HeicToJpgProps) {
               const showPreview = isDone && fileEntry.convertedUrl;
 
               return (
-                <div
-                  key={fileEntry.id}
-                  className="group relative overflow-hidden rounded-xl border border-hairline bg-canvas"
-                >
+                <div key={fileEntry.id} className="compressor-file-card group">
                   <button
                     type="button"
                     onClick={() => removeFile(fileEntry.id)}
@@ -282,7 +302,7 @@ export default function HeicToJpg({ uploadHint }: HeicToJpgProps) {
                     <Icon icon={XmarkDuotone} size={16} className="text-current" />
                   </button>
 
-                  <div className="relative aspect-square bg-canvas-soft">
+                  <div className="compressor-file-card-preview">
                     {showPreview ? (
                       <img
                         src={fileEntry.convertedUrl!}
@@ -290,30 +310,23 @@ export default function HeicToJpg({ uploadHint }: HeicToJpgProps) {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="flex h-full flex-col items-center justify-center gap-1 px-2 text-center">
-                        <span className="type-caption font-semibold uppercase tracking-wide text-violet-600">
+                      <div className="flex h-full flex-col items-center justify-center gap-1 px-1 text-center sm:px-2">
+                        <span className="type-format-badge px-1.5 py-px text-caption sm:px-2 sm:py-0.5">
                           HEIC
-                        </span>
-                        <span className="type-caption line-clamp-2">
-                          {fileEntry.original.name}
                         </span>
                       </div>
                     )}
                     {isConvertingFile && (
-                      <div className="type-caption absolute inset-0 flex items-center justify-center bg-canvas/70 font-medium text-violet-600 dark:text-violet-400">
+                      <div className="type-caption absolute inset-0 flex items-center justify-center bg-canvas/70 font-medium text-link">
                         Converting…
                       </div>
                     )}
-                    {isDone && (
-                      <span className="type-caption absolute bottom-1.5 left-1.5 rounded bg-green-600/90 px-1.5 py-0.5 font-medium text-white">
-                        JPG
-                      </span>
-                    )}
+                    {isDone && <span className="compressor-file-card-badge">JPG</span>}
                     {isDone && !isSingle && (
                       <button
                         type="button"
                         onClick={() => downloadSingle(fileEntry)}
-                        className="absolute bottom-1.5 right-1.5 rounded bg-violet-600 p-1.5 text-white opacity-0 shadow-sm transition-opacity hover:bg-violet-700 group-hover:opacity-100"
+                        className="compressor-file-card-download"
                         aria-label="Download JPG"
                       >
                         <Icon icon={Download1Duotone} size={14} />
@@ -321,7 +334,7 @@ export default function HeicToJpg({ uploadHint }: HeicToJpgProps) {
                     )}
                   </div>
 
-                  <div className="space-y-0.5 p-2">
+                  <div className="compressor-file-card-meta">
                     <p className="type-caption truncate font-medium text-ink">
                       {fileEntry.original.name}
                     </p>
@@ -355,28 +368,9 @@ export default function HeicToJpg({ uploadHint }: HeicToJpgProps) {
               );
             })}
           </div>
-
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={convertAll}
-              disabled={isConverting || files.length === 0}
-              className="type-button rounded-lg bg-violet-600 px-6 py-2.5 text-white hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {convertLabel}
-            </button>
-            <button
-              type="button"
-              onClick={handleBulkDownload}
-              disabled={doneCount === 0}
-              className="type-button inline-flex items-center gap-2 rounded-lg border border-hairline bg-canvas px-6 py-2.5 text-ink hover:bg-canvas-soft disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Icon icon={Download1Duotone} size={18} />
-              {bulkDownloadLabel}
-            </button>
-          </div>
         </>
       )}
+      </div>
     </div>
   );
 }

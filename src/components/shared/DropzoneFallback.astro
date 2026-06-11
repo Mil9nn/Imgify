@@ -13,16 +13,17 @@ const {
 } = Astro.props;
 ---
 
-<div class="space-y-6" aria-busy="true" aria-label="Loading image tool">
-  <div
-    class="rounded-xl border-2 border-dashed border-hairline bg-canvas-soft p-10 text-center"
-  >
-    <div class="mb-3 flex justify-center">
-      <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-canvas-soft text-link">
-        <LineIcon icon={Upload1Duotone} size={32} />
+<div class="compressor-workspace" aria-busy="true" aria-label="Loading image tool">
+  <aside class="compressor-panel hidden lg:block" aria-hidden="true">
+    <div class="h-40 animate-pulse rounded-md bg-canvas-soft-2"></div>
+  </aside>
+  <div class="compressor-main">
+    <div class="compressor-dropzone">
+      <span class="compressor-dropzone-icon">
+        <LineIcon icon={Upload1Duotone} size={24} />
       </span>
+      <p class="type-label mt-4">{hint}</p>
+      <p class="type-body-sm mt-1">{subhint}</p>
     </div>
-    <p class="type-label">{hint}</p>
-    <p class="type-body-sm mt-1">{subhint}</p>
   </div>
 </div>
