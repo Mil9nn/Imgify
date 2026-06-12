@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import ThemeToggle from '../components/shared/ThemeToggle.astro';
-import { BRAND_NAME, BRAND_TAGLINE } from '../lib/brand';
+import { BRAND_NAME, BRAND_TAGLINE, BRAND_URL } from '../lib/brand';
 
 interface Props {
   title: string;
@@ -21,7 +21,7 @@ const {
   jsonLd,
 } = Astro.props;
 
-const site = Astro.site?.href.replace(/\/$/, '') ?? 'https://imgify.com';
+const site = Astro.site?.href.replace(/\/$/, '') ?? BRAND_URL;
 const canonicalUrl = canonical ? `${site}${canonical}` : Astro.url.href;
 const jsonLdScripts = jsonLd
   ? Array.isArray(jsonLd)
@@ -29,8 +29,6 @@ const jsonLdScripts = jsonLd
     : [jsonLd]
   : [];
 
-const brandNameClass =
-  'bg-gradient-to-r from-cyan-600 via-blue-600 to-violet-600 bg-clip-text text-transparent';
 ---
 
 <!doctype html>
@@ -85,8 +83,8 @@ const brandNameClass =
     <slot name="head" />
   </head>
   <body class="min-h-screen font-sans">
-    <header class="sticky top-0 z-50 border-b border-hairline bg-canvas/90 backdrop-blur-md">
-      <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3.5">
+    <header class="sticky top-0 z-50 border-b border-hairline/80 bg-canvas/85 backdrop-blur-lg backdrop-saturate-150">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:py-3.5">
         <a href="/" class="group flex items-center gap-2.5">
           <img
             src="/logo2.png"
@@ -96,7 +94,7 @@ const brandNameClass =
             height="36"
             class="h-9 w-9 object-contain transition-transform group-hover:scale-105"
           />
-          <span class:list={['type-card-title', brandNameClass]}>{BRAND_NAME}</span>
+          <span class="type-card-title text-brand-gradient">{BRAND_NAME}</span>
         </a>
         <ThemeToggle />
       </div>
@@ -106,8 +104,8 @@ const brandNameClass =
       <slot />
     </main>
 
-    <footer class="mt-16 border-t border-hairline bg-gradient-to-b from-canvas-soft to-canvas">
-      <div class="mx-auto max-w-5xl px-4 py-10">
+    <footer class="mt-8 border-t border-hairline/80 bg-canvas-soft sm:mt-10">
+      <div class="mx-auto max-w-6xl px-4 py-10 sm:py-12">
         <div class="mb-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
           <a href="/" class="group flex items-center gap-2">
             <img
@@ -118,7 +116,7 @@ const brandNameClass =
               height="32"
               class="h-8 w-8 object-contain transition-transform group-hover:scale-105"
             />
-            <span class:list={['type-subheading', brandNameClass]}>{BRAND_NAME}</span>
+            <span class="type-subheading text-brand-gradient">{BRAND_NAME}</span>
           </a>
           <p class="type-body-sm">{BRAND_TAGLINE}</p>
         </div>

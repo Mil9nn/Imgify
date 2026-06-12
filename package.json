@@ -1,5 +1,5 @@
 {
-  "name": "imgify",
+  "name": "pickraft",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -31,7 +31,9 @@
   },
   "overrides": {
     "vite": "^7",
-    "@lineiconshq/free-icons": "$@lineiconshq/free-icons"
+    "@lineiconshq/free-icons": "$@lineiconshq/free-icons",
+    "react": "$react",
+    "react-dom": "$react-dom"
   },
   "devDependencies": {
     "playwright": "^1.60.0"

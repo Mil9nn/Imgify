@@ -1,8 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { BRAND_NAME } from '../../lib/brand';
+import { BRAND_NAME, BRAND_URL } from '../../lib/brand';
+import { toRelatedToolCard } from '../../lib/related-tools';
 import FormatName from './FormatName.astro';
 import LineIcon from './LineIcon.astro';
+import ToolCard from './ToolCard.astro';
 import { ArrowRightDuotone, ChevronDownDuotone } from '@lineiconshq/free-icons';
 
 interface Faq {
@@ -25,7 +27,6 @@ interface Props {
   title: string;
   description: string;
   canonical: string;
-  tagline: string;
   intro: string;
   toolName: string;
   faqs: Faq[];
@@ -41,7 +42,6 @@ const {
   title,
   description,
   canonical,
-  tagline,
   intro,
   toolName,
   faqs,
@@ -54,14 +54,9 @@ const {
 } = Astro.props;
 
 const isConversion = fromFormat && toFormat;
-const heroHeadline =
-  headline ??
-  (isConversion
-    ? `Convert ${fromFormat} to ${toFormat} in your browser.`
-    : toolName);
 const aboutHeading = aboutTitle ?? 'Process files without leaving the browser.';
 
-const site = Astro.site?.href.replace(/\/$/, '') ?? 'https://imgify.com';
+const site = Astro.site?.href.replace(/\/$/, '') ?? BRAND_URL;
 const toolUrl = `${site}${canonical}`;
 
 const webAppJsonLd = {
@@ -101,19 +96,23 @@ const faqJsonLd = {
   <div class="bg-canvas-soft">
     <section class="compressor-hero relative overflow-hidden">
       <div class="compressor-mesh" aria-hidden="true"></div>
-      <div class="relative mx-auto max-w-6xl px-4 py-14 md:py-20">
-        <p class="type-mono-eyebrow mb-4">free · browser-local · no signup</p>
-        {
-          isConversion && (
-            <div class="mb-4 inline-flex flex-wrap items-center gap-1.5">
-              <FormatName format={fromFormat} />
-              <span class="font-sans text-body-sm font-normal text-mute">to</span>
-              <FormatName format={toFormat} />
-            </div>
-          )
-        }
-        <h1 class="compressor-headline mb-4 max-w-3xl">{heroHeadline}</h1>
-        <p class="type-lead max-w-2xl">{tagline}</p>
+      <div class="relative mx-auto max-w-6xl px-4 py-12 sm:py-14 md:py-20">
+        <h1 class="compressor-headline max-w-3xl">
+          {
+            headline ??
+              (isConversion ? (
+                <>
+                  Convert{' '}
+                  <FormatName format={fromFormat} size="hero" />
+                  {' to '}
+                  <FormatName format={toFormat} size="hero" />
+                  {' in your browser.'}
+                </>
+              ) : (
+                toolName
+              ))
+          }
+        </h1>
       </div>
     </section>
 
@@ -176,23 +175,9 @@ const faqJsonLd = {
 
       <section class="my-16">
         <p class="type-mono-eyebrow mb-3">More tools</p>
-        <h2 class="type-section-title mb-6">Related tools.</h2>
-        <div class="grid gap-3 sm:grid-cols-2">
-          {
-            relatedTools.map((tool) => (
-              <a href={tool.href} class="compressor-related group">
-                <LineIcon
-                  icon={ArrowRightDuotone}
-                  size={18}
-                  class="mt-0.5 shrink-0 text-mute transition-all group-hover:translate-x-0.5 group-hover:text-link"
-                />
-                <div>
-                  <h3 class="type-subheading mb-0.5">{tool.title}</h3>
-                  <p class="type-body-sm">{tool.desc}</p>
-                </div>
-              </a>
-            ))
-          }
+        <h2 class="type-section-title mb-6">Related tools</h2>
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {relatedTools.map((tool) => <ToolCard {...toRelatedToolCard(tool)} />)}
         </div>
       </section>
     </div>

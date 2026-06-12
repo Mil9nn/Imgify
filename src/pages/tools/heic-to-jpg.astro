@@ -1,6 +1,5 @@
 ---
 import ToolLayout from '../../components/shared/ToolLayout.astro';
-import DropzoneFallback from '../../components/shared/DropzoneFallback.astro';
 import HeicToJpg from '../../components/tools/HeicToJpg';
 import { getRelatedConversions } from '../../lib/conversion-pages';
 import { heicToJpgPageFaqs } from '../../lib/heic-jpg-faqs';
@@ -39,7 +38,6 @@ const relatedTools = [
   title="HEIC to JPG Converter — Free Online | Convert HEIC to JPEG | Pickraft"
   description="Free HEIC to JPG converter. Convert HEIC to JPG online — change .heic to JPEG on Windows, Mac & iPhone. Free heic to jpg converter, no download."
   canonical="/tools/heic-to-jpg"
-  tagline="Convert HEIC to JPG free online — free HEIC to JPG converter, no signup or download"
   intro={intro}
   fromFormat="HEIC"
   toFormat="JPG"
@@ -49,11 +47,5 @@ const relatedTools = [
   relatedTools={relatedTools}
   steps={steps}
 >
-  <HeicToJpg client:only="react" uploadHint="Drop HEIC files here to convert to JPG">
-    <DropzoneFallback
-      slot="fallback"
-      hint="Drop HEIC files here to convert to JPG"
-      subhint=".heic, .heif — free HEIC to JPG converter, no download"
-    />
-  </HeicToJpg>
+  <HeicToJpg client:load uploadHint="Drop HEIC files here to convert to JPG" />
 </ToolLayout>

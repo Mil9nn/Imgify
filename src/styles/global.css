@@ -93,6 +93,10 @@
 }
 
 @layer components {
+  .text-brand-gradient {
+    @apply bg-gradient-to-r from-cyan-600 via-blue-600 to-violet-600 bg-clip-text text-transparent dark:from-cyan-400 dark:via-blue-400 dark:to-violet-400;
+  }
+
   /* ── Display ── */
   .type-hero {
     @apply text-display-xl font-semibold text-ink;
@@ -156,9 +160,8 @@
     @apply text-caption font-medium;
   }
 
-  /* DESIGN.md badge-secondary — format labels in tool cards */
   .type-format-badge {
-    @apply rounded-full border;
+    @apply font-mono uppercase tracking-wide;
   }
 
   .ad-container {
@@ -201,11 +204,11 @@
   }
 
   .surface-card {
-    @apply rounded-lg border border-hairline bg-canvas;
+    @apply rounded-xl border border-hairline bg-canvas;
   }
 
   .surface-muted {
-    @apply rounded-lg border border-hairline bg-canvas-soft;
+    @apply rounded-xl border border-hairline bg-canvas-soft;
   }
 
   .surface-inverted {
@@ -235,40 +238,58 @@
   }
 
   .compressor-workspace {
-    @apply -mt-4 grid gap-4 sm:-mt-6 sm:gap-6 lg:grid-cols-[280px_1fr] lg:gap-8;
+    @apply grid gap-4 sm:gap-5 lg:grid-cols-[minmax(240px,280px)_1fr] lg:gap-8;
+  }
+
+  /* Empty state: dropzone only on mobile until files are added */
+  .compressor-workspace--empty .compressor-panel {
+    @apply hidden lg:block;
+  }
+
+  .compressor-workspace--empty .compressor-main {
+    @apply order-first lg:order-none;
+  }
+
+  /* With files: actions first on mobile, file strip below */
+  .compressor-workspace--has-files {
+    @apply flex flex-col lg:grid;
+  }
+
+  .compressor-workspace--has-files .compressor-panel {
+    @apply order-1 lg:order-none;
+  }
+
+  .compressor-workspace--has-files .compressor-main {
+    @apply order-2 lg:order-none;
   }
 
   .compressor-panel {
-    @apply order-2 h-fit rounded-lg border border-hairline bg-canvas p-4 shadow-[0px_1px_1px_#00000005,0px_2px_2px_#0000000a,0_0_0_1px_#00000014_inset] sm:p-6 lg:order-none lg:sticky lg:top-20;
+    @apply h-fit rounded-xl border border-hairline bg-canvas/95 p-4 shadow-[0_1px_2px_#0000000a,0_4px_12px_-2px_#0000000f] backdrop-blur-sm sm:p-5 lg:sticky lg:top-[4.5rem];
   }
 
   .compressor-main {
-    @apply order-1 min-w-0 lg:order-none;
+    @apply min-h-48 min-w-0;
   }
 
   .compressor-dropzone {
-    @apply cursor-pointer rounded-lg border border-dashed border-hairline bg-canvas p-10 text-center transition-colors;
-    box-shadow: 0 0 0 1px #00000014 inset;
+    @apply cursor-pointer rounded-xl border-2 border-dashed border-hairline bg-canvas p-8 text-center transition-all duration-200 sm:p-12;
+    box-shadow: 0 0 0 1px #0000000a inset;
   }
 
   .compressor-dropzone:hover {
-    @apply border-link/40 bg-canvas-soft;
+    @apply border-link/35 bg-canvas-soft;
   }
 
   .compressor-dropzone--active {
-    @apply border-link bg-link/5;
+    @apply scale-[1.005] border-link bg-link/5 shadow-[0_0_0_4px_#0070f314];
   }
 
   .compressor-dropzone-icon {
-    @apply mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-hairline bg-canvas-soft text-ink;
+    @apply mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-hairline bg-gradient-to-br from-canvas-soft to-canvas text-ink shadow-sm;
   }
 
   .compressor-range {
     @apply h-1.5 appearance-none rounded-full bg-canvas-soft-2 accent-ink;
-  }
-
-  .compressor-select {
-    @apply h-10 rounded-md border border-hairline bg-canvas px-3 text-body-sm text-ink outline-none transition-colors focus:border-ink;
   }
 
   .compressor-stats {
@@ -279,115 +300,121 @@
     color: var(--color-on-primary);
   }
 
+  .compressor-actions {
+    @apply flex gap-2;
+  }
+
+  .compressor-actions .compressor-btn-primary,
+  .compressor-actions .compressor-btn-secondary {
+    @apply min-w-0 flex-1;
+  }
+
   .compressor-btn-primary {
-    @apply w-full rounded-full bg-primary px-5 py-2.5 text-body-sm font-medium text-on-primary transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply w-full rounded-lg h-12 bg-primary px-4 text-body-sm font-medium text-on-primary transition-all hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .compressor-btn-secondary {
-    @apply w-full rounded-full border border-hairline bg-canvas px-5 py-2.5 text-body-sm font-medium text-ink transition-colors hover:bg-canvas-soft disabled:cursor-not-allowed disabled:opacity-50;
+    @apply w-full rounded-lg h-12 border border-hairline bg-canvas px-5 py-3 text-body-sm font-medium text-ink transition-all hover:bg-canvas-soft active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .compressor-icon-btn {
-    @apply rounded-full p-1.5 text-ink transition-colors hover:bg-canvas-soft;
+    @apply rounded-lg p-1.5 text-ink transition-colors hover:bg-canvas-soft;
   }
 
-  .compressor-file-grid {
-    @apply flex flex-col gap-2 sm:grid sm:grid-cols-2 sm:gap-3 md:grid-cols-3 lg:grid-cols-4;
+  .compressor-add-more-btn {
+    @apply inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-hairline bg-canvas px-3 py-1.5 text-body-sm font-medium text-ink transition-colors hover:border-link/30 hover:bg-canvas-soft;
+  }
+
+  .compressor-file-area {
+    @apply min-w-0 rounded-xl border border-hairline bg-canvas p-3 shadow-[0_1px_2px_#0000000a] sm:p-4;
+  }
+
+  .compressor-file-strip-header {
+    @apply mb-3 flex items-center justify-between gap-3;
+  }
+
+  .compressor-file-strip {
+    @apply flex gap-3 overflow-x-auto overscroll-x-contain pb-1;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-hairline) transparent;
+  }
+
+  .compressor-file-strip::-webkit-scrollbar {
+    height: 5px;
+  }
+
+  .compressor-file-strip::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-hairline;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .compressor-file-strip {
+      scroll-behavior: smooth;
+    }
   }
 
   .compressor-file-card {
-    @apply relative flex gap-3 overflow-hidden rounded-lg border border-hairline bg-canvas p-2.5 sm:block sm:p-0;
-    box-shadow: 0 0 0 1px #00000014 inset;
+    @apply relative flex w-[7.25rem] shrink-0 snap-start flex-col overflow-hidden rounded-xl border border-hairline bg-canvas;
+    scroll-snap-align: start;
+    box-shadow: 0 0 0 1px #0000000a inset;
   }
 
   .compressor-file-card-preview {
-    @apply relative h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden rounded-md bg-canvas-soft sm:aspect-square sm:h-auto sm:w-auto sm:rounded-none;
+    @apply relative aspect-square w-full overflow-hidden bg-canvas-soft;
   }
 
   .compressor-file-card-meta {
-    @apply flex min-w-0 flex-1 flex-col justify-center gap-0.5 pr-7 sm:p-2 sm:pr-2;
+    @apply flex min-w-0 flex-col gap-0.5 p-2;
   }
 
   .compressor-file-card-badge {
-    @apply absolute bottom-1 left-1 rounded-full bg-primary px-1.5 py-px text-caption font-medium text-on-primary sm:bottom-1.5 sm:left-1.5 sm:px-2 sm:py-0.5;
+    @apply absolute bottom-1.5 left-1.5 rounded-md bg-primary/90 px-1.5 py-px text-caption font-medium text-on-primary backdrop-blur-sm;
   }
 
   .compressor-file-card-download {
-    @apply absolute bottom-1 right-1 rounded-full bg-canvas/90 p-1.5 text-ink shadow-sm transition-colors hover:bg-canvas-soft sm:bottom-1.5 sm:right-1.5 sm:opacity-0 sm:group-hover:opacity-100;
+    @apply absolute bottom-1.5 right-1.5 rounded-lg bg-canvas/95 p-1.5 text-ink shadow-sm backdrop-blur-sm transition-all hover:bg-canvas-soft;
   }
 
-  .compressor-file-list {
-    @apply overflow-hidden rounded-lg border border-hairline bg-canvas;
-    box-shadow: 0px 1px 1px #00000005, 0px 2px 2px #0000000a, 0 0 0 1px #00000014 inset;
+  .compressor-file-card-remove {
+    @apply absolute right-1 top-1 z-10 rounded-lg bg-canvas/95 p-1 text-mute shadow-sm backdrop-blur-sm transition-colors hover:text-error;
   }
 
-  .compressor-file-header {
-    @apply hidden gap-4 border-b border-hairline bg-canvas-soft px-4 py-3 font-mono text-caption uppercase tracking-widest text-mute md:grid;
-    grid-template-columns: 1fr 5rem 5rem 8rem 4rem;
+  .compressor-file-strip-add {
+    @apply flex w-[7.25rem] shrink-0 snap-start flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-hairline bg-canvas-soft/50 p-3 text-mute transition-colors hover:border-link/35 hover:bg-canvas-soft hover:text-ink;
+    scroll-snap-align: start;
   }
 
-  .compressor-file-row {
-    @apply grid gap-x-3 gap-y-2.5 border-b border-hairline px-3 py-3 last:border-b-0 sm:px-4;
-    grid-template-columns: 1fr auto;
-    grid-template-areas:
-      "info actions"
-      "stats stats";
-  }
 
-  .compressor-file-row__info {
-    grid-area: info;
-  }
-
-  .compressor-file-row__actions {
-    grid-area: actions;
-  }
-
-  .compressor-file-row__stats {
-    @apply grid grid-cols-3 gap-2 border-t border-hairline pt-2.5;
-    grid-area: stats;
-  }
-
-  .compressor-file-stat-label {
-    @apply mb-0.5 block font-mono text-caption uppercase tracking-wider text-mute;
-  }
-
-  @media (min-width: 768px) {
-    .compressor-file-row {
-      @apply items-center gap-4;
-      grid-template-columns: 1fr 5rem 5rem 8rem 4rem;
-      grid-template-areas: none;
-    }
-
-    .compressor-file-row__stats {
-      @apply contents border-t-0 pt-0;
-    }
-
-    .compressor-file-stat-label {
-      @apply hidden;
-    }
+  .compressor-hero {
+    @apply border-b border-hairline/80;
   }
 
   .compressor-step {
-    @apply flex gap-5 border-t border-hairline py-6 first:border-t-0 first:pt-0;
+    @apply flex gap-4 rounded-xl border border-hairline bg-canvas p-4 sm:gap-5 sm:p-5;
+    box-shadow: 0 1px 2px #0000000a;
+  }
+
+  .compressor-steps {
+    @apply grid gap-3 sm:gap-4;
   }
 
   .compressor-step-num {
-    @apply text-caption text-mute;
+    @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-canvas-soft font-mono text-caption font-medium text-mute;
   }
 
   .compressor-about {
-    @apply rounded-lg border border-hairline bg-canvas p-6 md:p-10;
-    box-shadow: 0px 2px 2px #0000000a, 0px 8px 16px -4px #0000000a;
+    @apply max-w-3xl;
   }
 
   .compressor-faq {
-    @apply rounded-md border border-hairline bg-canvas;
-    box-shadow: 0 0 0 1px #00000014 inset;
+    @apply overflow-hidden rounded-xl border border-hairline bg-canvas transition-colors;
+    box-shadow: 0 1px 2px #0000000a;
   }
 
-  .compressor-related {
-    @apply flex items-start gap-3 rounded-md border border-hairline bg-canvas p-4 transition-colors hover:border-hairline hover:bg-canvas-soft;
-    box-shadow: 0 0 0 1px #00000014 inset;
+  .compressor-faq[open] {
+    @apply border-link/20 bg-canvas-soft/50;
   }
 
   /* ── Error pages (DESIGN.md conventions) ── */
@@ -412,15 +439,15 @@
   }
 
   .error-btn-primary {
-    @apply inline-flex items-center justify-center rounded-full bg-primary px-6 py-2.5 text-body-sm font-medium text-on-primary transition-colors hover:opacity-90;
+    @apply inline-flex items-center justify-center rounded-xl bg-primary px-6 py-2.5 text-body-sm font-medium text-on-primary transition-colors hover:opacity-90;
   }
 
   .error-btn-secondary {
-    @apply inline-flex items-center justify-center rounded-full border border-hairline bg-canvas px-6 py-2.5 text-body-sm font-medium text-ink transition-colors hover:bg-canvas-soft;
+    @apply inline-flex items-center justify-center rounded-xl border border-hairline bg-canvas px-6 py-2.5 text-body-sm font-medium text-ink transition-colors hover:bg-canvas-soft;
   }
 
   .error-nav-link {
-    @apply flex items-start gap-3 rounded-md border border-hairline bg-canvas p-4 transition-colors hover:bg-canvas-soft;
-    box-shadow: 0 0 0 1px #00000014 inset;
+    @apply flex items-start gap-3 rounded-xl border border-hairline bg-canvas p-4 transition-all hover:-translate-y-px hover:bg-canvas-soft hover:shadow-sm;
+    box-shadow: 0 1px 2px #0000000a;
   }
 }

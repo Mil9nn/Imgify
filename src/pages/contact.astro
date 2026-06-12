@@ -1,5 +1,6 @@
 ---
 import LegalLayout from '../layouts/LegalLayout.astro';
+import { BRAND_EMAIL } from '../lib/brand';
 ---
 
 <LegalLayout
@@ -19,7 +20,7 @@ import LegalLayout from '../layouts/LegalLayout.astro';
   <section>
     <h2 class="type-subheading mb-3">Email</h2>
     <p>
-      <a href="mailto:hello@imgify.com" class="text-link hover:underline">hello@imgify.com</a>
+      <a href={`mailto:${BRAND_EMAIL}`} class="text-link hover:underline">{BRAND_EMAIL}</a>
     </p>
     <p class="mt-3">
       We aim to respond within a few business days. Please include as much detail as you can —

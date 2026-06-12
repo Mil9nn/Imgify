@@ -1,5 +1,6 @@
 ---
 import LegalLayout from '../layouts/LegalLayout.astro';
+import { BRAND_DOMAIN, BRAND_EMAIL } from '../lib/brand';
 ---
 
 <LegalLayout
@@ -11,7 +12,7 @@ import LegalLayout from '../layouts/LegalLayout.astro';
   <section>
     <h2 class="type-subheading mb-3">Agreement</h2>
     <p>
-      By using imgify.com, you agree to these terms. If you do not agree, please do not use the
+      By using {BRAND_DOMAIN}, you agree to these terms. If you do not agree, please do not use the
       site.
     </p>
   </section>
@@ -63,7 +64,7 @@ import LegalLayout from '../layouts/LegalLayout.astro';
     <h2 class="type-subheading mb-3">Contact</h2>
     <p>
       Questions about these terms? Email
-      <a href="mailto:hello@imgify.com" class="text-blue-600 hover:underline">hello@imgify.com</a>.
+      <a href={`mailto:${BRAND_EMAIL}`} class="text-blue-600 hover:underline">{BRAND_EMAIL}</a>.
     </p>
   </section>
 </LegalLayout>

@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Download1Duotone,
-  Upload1Duotone,
   XmarkDuotone,
 } from '@lineiconshq/free-icons';
 import Icon from '../shared/Icon';
+import BulkFileArea from './BulkFileArea';
+import UploadDropzone from './UploadDropzone';
 import {
   downloadBlob,
   formatFileSize,
@@ -128,8 +129,24 @@ export default function ImageToPdf({ uploadHint }: ImageToPdfProps) {
       ? 'Re-create PDF'
       : 'Create PDF';
 
+  const openFilePicker = () => inputRef.current?.click();
+
+  const workspaceClass =
+    files.length > 0 ? 'compressor-workspace--has-files' : 'compressor-workspace--empty';
+
   return (
-    <div className="compressor-workspace">
+    <div className={`compressor-workspace ${workspaceClass}`}>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={ACCEPTED_TYPES}
+        multiple
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files) addFiles(e.target.files);
+          e.target.value = '';
+        }}
+      />
       <aside className="compressor-panel">
         {files.length > 0 && (
           <div className="compressor-stats mb-6">
@@ -142,7 +159,7 @@ export default function ImageToPdf({ uploadHint }: ImageToPdfProps) {
             )}
           </div>
         )}
-        <div className="space-y-3">
+        <div className="compressor-actions">
           <button
             type="button"
             onClick={convertToPdf}
@@ -167,56 +184,37 @@ export default function ImageToPdf({ uploadHint }: ImageToPdfProps) {
 
       <div className="compressor-main space-y-4">
         {files.length === 0 && (
-          <div
-            role="button"
-            tabIndex={0}
+          <UploadDropzone
+            isDragging={isDragging}
             onDragOver={(e) => {
               e.preventDefault();
               setIsDragging(true);
             }}
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
-            onClick={() => inputRef.current?.click()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
-            }}
-            className={`compressor-dropzone ${isDragging ? 'compressor-dropzone--active' : ''}`}
-          >
-            <input
-              ref={inputRef}
-              type="file"
-              accept={ACCEPTED_TYPES}
-              multiple
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files) addFiles(e.target.files);
-                e.target.value = '';
-              }}
-            />
-            <span className="compressor-dropzone-icon">
-              <Icon icon={Upload1Duotone} size={24} />
-            </span>
-            <p className="type-label mt-4">
-              {uploadHint ?? 'Drag images here or click to upload'}
-            </p>
-            <p className="type-body-sm mt-1">
-              PNG, JPG, WEBP — multiple images become one multi-page PDF
-            </p>
-          </div>
+            onClick={openFilePicker}
+            primaryText={uploadHint ?? 'Drag images here or click to upload'}
+            secondaryText="PNG, JPG, WEBP — multiple images become one multi-page PDF"
+          />
         )}
 
       {files.length > 0 && (
-        <>
-          <div className="compressor-file-grid">
+        <div className="space-y-3">
+          <BulkFileArea
+            fileCount={files.length}
+            fileLabel="pages"
+            onAddMore={openFilePicker}
+            addMoreLabel="Add pages"
+          >
             {files.map((fileEntry, index) => (
-              <div key={fileEntry.id} className="compressor-file-card group">
+              <div key={fileEntry.id} className="compressor-file-card" role="listitem">
                 <button
                   type="button"
                   onClick={() => removeFile(fileEntry.id)}
-                  className="absolute right-1.5 top-1.5 z-10 rounded-full bg-canvas/90 p-1 text-mute shadow-sm hover:text-error"
+                  className="compressor-file-card-remove"
                   aria-label="Remove file"
                 >
-                  <Icon icon={XmarkDuotone} size={16} className="text-current" />
+                  <Icon icon={XmarkDuotone} size={14} className="text-current" />
                 </button>
 
                 <div className="compressor-file-card-preview">
@@ -234,16 +232,14 @@ export default function ImageToPdf({ uploadHint }: ImageToPdfProps) {
                   <p className="type-caption truncate font-medium text-ink">
                     {fileEntry.original.name}
                   </p>
-                  <p className="type-caption">
-                    {formatFileSize(fileEntry.originalSize)}
-                  </p>
+                  <p className="type-caption">{formatFileSize(fileEntry.originalSize)}</p>
                 </div>
               </div>
             ))}
-          </div>
+          </BulkFileArea>
 
           {error && (
-            <p className="type-body-sm rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300">
+            <p className="type-body-sm rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300">
               {error}
             </p>
           )}
@@ -254,7 +250,7 @@ export default function ImageToPdf({ uploadHint }: ImageToPdfProps) {
               {formatFileSize(pdfSize)} PDF.
             </p>
           )}
-        </>
+        </div>
       )}
       </div>
     </div>

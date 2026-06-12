@@ -1,14 +1,14 @@
-const formatBadgeStyles: Record<string, string> = {
-  HEIC: 'border-violet-200 bg-violet-50 text-violet-800 dark:border-violet-800/60 dark:bg-violet-950/40 dark:text-violet-200',
-  JPG: 'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/40 dark:text-amber-200',
-  PNG: 'border-sky-200 bg-sky-50 text-sky-800 dark:border-sky-800/60 dark:bg-sky-950/40 dark:text-sky-200',
-  WebP: 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-200',
-  PDF: 'border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-800/60 dark:bg-rose-950/40 dark:text-rose-200',
-  IMG: 'border-slate-200 bg-slate-50 text-slate-800 dark:border-slate-700/60 dark:bg-slate-900/40 dark:text-slate-200',
+const formatTextColors: Record<string, string> = {
+  HEIC: 'text-violet-600 dark:text-violet-400',
+  JPG: 'text-amber-600 dark:text-amber-400',
+  PNG: 'text-sky-600 dark:text-sky-400',
+  WebP: 'text-emerald-600 dark:text-emerald-400',
+  PDF: 'text-rose-600 dark:text-rose-400',
+  IMG: 'text-slate-600 dark:text-slate-400',
 };
 
 export function formatBadgeClass(format: string): string {
-  return formatBadgeStyles[format] ?? 'border-hairline bg-canvas-soft text-ink';
+  return formatTextColors[format] ?? 'text-ink';
 }
 
 export function formatSlugPart(part: string): string {

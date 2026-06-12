@@ -5,12 +5,7 @@ import ToolCard from '../components/shared/ToolCard.astro';
 import LineIcon from '../components/shared/LineIcon.astro';
 import { conversionPages } from '../lib/conversion-pages';
 import { formatsFromConversionSlug } from '../lib/format-icons';
-import {
-  Shield2CheckDuotone,
-  Locked1Duotone,
-  Bolt2Duotone,
-  Gauge1Duotone,
-} from '@lineiconshq/free-icons';
+import { Bolt2Duotone, Gauge1Duotone } from '@lineiconshq/free-icons';
 
 const tools = [
   {
@@ -45,11 +40,6 @@ const tools = [
   },
 ];
 
-const trustBadges = [
-  { icon: Shield2CheckDuotone, label: 'Free to use', desc: 'No account or payment needed' },
-  { icon: Locked1Duotone, label: 'No signup', desc: 'Start converting instantly' },
-  { icon: Bolt2Duotone, label: 'Lightning fast', desc: 'Convert images in seconds' },
-];
 ---
 
 <BaseLayout
@@ -64,7 +54,7 @@ const trustBadges = [
     >
     </div>
 
-    <div class="relative mx-auto max-w-5xl px-4 py-16 md:py-20">
+    <div class="relative mx-auto max-w-6xl px-4 pt-14 pb-6 sm:pt-16 sm:pb-8 md:pt-20">
       <section class="mb-14 text-center">
         <p
           class="type-badge mb-4 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-canvas/80 px-4 py-1.5 text-blue-700 shadow-sm backdrop-blur-sm dark:border-blue-900/50 dark:bg-canvas/60 dark:text-blue-300"
@@ -72,42 +62,15 @@ const trustBadges = [
           <LineIcon icon={Bolt2Duotone} size={16} class="text-blue-600" />
           Free tools · No signup · Instant download
         </p>
-        <h1 class="type-hero mb-4">
-          <span
-            class="bg-gradient-to-r from-cyan-600 via-blue-600 to-violet-600 bg-clip-text text-transparent dark:from-cyan-400 dark:via-blue-400 dark:to-violet-400"
-          >
-            Convert, compress, and optimize images
-          </span>
-          <span class="text-ink"> in your browser.</span>
+        <h1 class="type-hero text-ink">
+          Convert, compress and optimize images in your browser.
         </h1>
-        <p class="type-lead mx-auto max-w-2xl">
-          HEIC to JPG, PNG &amp; WebP conversion, image compression, and PDF tools — free, no signup.
-        </p>
       </section>
 
-      <section class="mb-16">
+      <section>
         <h2 class="type-section-title mb-6">All Tools</h2>
         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {tools.map((tool) => <ToolCard {...tool} />)}
-        </div>
-      </section>
-
-      <section class="mb-4">
-        <div class="mx-auto grid max-w-3xl grid-cols-3 gap-2 sm:gap-4">
-          {
-            trustBadges.map((item) => (
-              <div class="flex flex-col items-center gap-1 rounded-xl border border-hairline bg-canvas/70 px-2 py-3 shadow-sm backdrop-blur-sm sm:gap-2 sm:rounded-2xl sm:px-4 sm:py-5">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-canvas-soft text-blue-600 sm:h-10 sm:w-10 sm:rounded-xl dark:text-blue-400">
-                  <LineIcon icon={item.icon} size={18} class="sm:hidden" />
-                  <LineIcon icon={item.icon} size={22} class="hidden sm:block" />
-                </span>
-                <p class="text-center text-caption font-semibold leading-snug text-ink sm:text-body-md">
-                  {item.label}
-                </p>
-                <p class="type-caption hidden text-center sm:block">{item.desc}</p>
-              </div>
-            ))
-          }
         </div>
       </section>
     </div>

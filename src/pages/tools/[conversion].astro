@@ -1,6 +1,5 @@
 ---
 import ToolLayout from '../../components/shared/ToolLayout.astro';
-import DropzoneFallback from '../../components/shared/DropzoneFallback.astro';
 import ImageConverter from '../../components/tools/ImageConverter';
 import {
   conversionPages,
@@ -40,7 +39,6 @@ const relatedTools = [
   title={page.title}
   description={page.description}
   canonical={`/tools/${page.slug}`}
-  tagline={page.tagline}
   intro={page.intro}
   fromFormat={formats.from}
   toFormat={formats.to}
@@ -50,14 +48,8 @@ const relatedTools = [
   steps={steps}
 >
   <ImageConverter
-    client:only="react"
+    client:load
     defaultFormat={page.defaultFormat}
     uploadHint={page.uploadHint}
-  >
-    <DropzoneFallback
-      slot="fallback"
-      hint={page.uploadHint ?? 'Drag images here or click to upload'}
-      subhint="or click to browse — bulk upload supported"
-    />
-  </ImageConverter>
+  />
 </ToolLayout>

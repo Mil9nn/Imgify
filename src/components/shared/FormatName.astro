@@ -3,7 +3,7 @@ import { formatBadgeClass } from '../../lib/format-icons';
 
 interface Props {
   format: string;
-  size?: 'sm' | 'default' | 'lg';
+  size?: 'sm' | 'default' | 'lg' | 'hero';
   emphasis?: 'source' | 'destination';
 }
 
@@ -12,14 +12,13 @@ const { format, size = 'default', emphasis } = Astro.props;
 
 <span
   class:list={[
-    'type-format-badge inline-flex items-center font-mono uppercase tracking-wide',
+    'inline-flex items-center font-mono uppercase tracking-wide',
     formatBadgeClass(format),
-    size === 'sm' && 'px-2 py-0.5 text-caption font-medium',
-    size === 'default' && 'px-2.5 py-1 text-body-sm font-medium',
-    size === 'lg' &&
-      'px-2.5 py-1 text-caption font-semibold sm:px-3 sm:py-1.5 sm:text-body-sm',
-    emphasis === 'source' && 'opacity-90',
-    emphasis === 'destination' && 'shadow-sm ring-1 ring-black/5 dark:ring-white/10',
+    size === 'sm' && 'text-caption font-medium',
+    size === 'default' && 'text-body-sm font-medium',
+    size === 'lg' && 'text-body-sm font-semibold sm:text-body-md',
+    size === 'hero' && 'text-[1em] font-semibold leading-[inherit]',
+    emphasis === 'source' && size !== 'hero' && 'opacity-75',
   ]}
 >
   {format}

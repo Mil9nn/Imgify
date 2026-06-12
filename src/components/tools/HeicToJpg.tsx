@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Download1Duotone,
-  Upload1Duotone,
   XmarkDuotone,
 } from '@lineiconshq/free-icons';
 import Icon from '../shared/Icon';
+import BulkFileArea from './BulkFileArea';
+import UploadDropzone from './UploadDropzone';
 import {
   convertHeicToJpg,
   downloadBlob,
@@ -191,13 +192,32 @@ export default function HeicToJpg({ uploadHint }: HeicToJpgProps) {
 
   const bulkDownloadLabel = isSingle ? 'Download JPG' : `Download All as ZIP (${doneCount})`;
 
+  const openFilePicker = () => inputRef.current?.click();
+
+  const workspaceClass =
+    files.length > 0 ? 'compressor-workspace--has-files' : 'compressor-workspace--empty';
+
   return (
-    <div className="compressor-workspace">
+    <div className={`compressor-workspace ${workspaceClass}`}>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={ACCEPTED_TYPES}
+        multiple
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files) addFiles(e.target.files);
+          e.target.value = '';
+        }}
+      />
       <aside className="compressor-panel">
-        <label htmlFor="heic-quality" className="type-mono-eyebrow mb-3 block normal-case">
-          JPEG quality
+        <label
+          htmlFor="heic-quality"
+          className="type-mono-eyebrow mb-2 flex items-baseline justify-between normal-case"
+        >
+          <span>JPEG quality</span>
+          <span className="font-mono text-ink">{quality}</span>
         </label>
-        <p className="type-subheading mb-3">{quality}</p>
         <input
           id="heic-quality"
           type="range"
@@ -210,15 +230,7 @@ export default function HeicToJpg({ uploadHint }: HeicToJpgProps) {
         <p className="type-caption mb-6">
           85–90 recommended for iPhone photos — balances file size and visual quality.
         </p>
-        {files.length > 0 && (
-          <div className="compressor-stats mb-6">
-            <p className="type-mono-eyebrow mb-1 opacity-60">Progress</p>
-            <p className="type-subheading">
-              {doneCount} / {files.length} converted
-            </p>
-          </div>
-        )}
-        <div className="space-y-3">
+        <div className="compressor-actions">
           <button
             type="button"
             onClick={convertAll}
@@ -243,132 +255,111 @@ export default function HeicToJpg({ uploadHint }: HeicToJpgProps) {
 
       <div className="compressor-main space-y-4">
         {files.length === 0 && (
-          <div
-            role="button"
-            tabIndex={0}
+          <UploadDropzone
+            isDragging={isDragging}
             onDragOver={(e) => {
               e.preventDefault();
               setIsDragging(true);
             }}
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
-            onClick={() => inputRef.current?.click()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
-            }}
-            className={`compressor-dropzone ${isDragging ? 'compressor-dropzone--active' : ''}`}
-          >
-            <input
-              ref={inputRef}
-              type="file"
-              accept={ACCEPTED_TYPES}
-              multiple
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files) addFiles(e.target.files);
-                e.target.value = '';
-              }}
-            />
-            <span className="compressor-dropzone-icon">
-              <Icon icon={Upload1Duotone} size={24} />
-            </span>
-            <p className="type-label mt-4">
-              {uploadHint ?? 'Drag HEIC files here or click to upload'}
-            </p>
-            <p className="type-body-sm mt-1">.heic, .heif — bulk upload supported</p>
-          </div>
+            onClick={openFilePicker}
+            primaryText={uploadHint ?? 'Drag HEIC files here or click to upload'}
+            secondaryText=".heic, .heif — bulk upload supported"
+          />
         )}
 
       {files.length > 0 && (
-        <>
-          <div className="compressor-file-grid">
-            {files.map((fileEntry) => {
-              const sizeComparison =
-                fileEntry.convertedSize !== null
-                  ? getSizeComparison(fileEntry.originalSize, fileEntry.convertedSize)
-                  : null;
-              const isDone = fileEntry.status === 'done';
-              const isConvertingFile = fileEntry.status === 'converting';
-              const showPreview = isDone && fileEntry.convertedUrl;
+        <BulkFileArea
+          fileCount={files.length}
+          fileLabel="HEIC files"
+          doneCount={doneCount}
+          onAddMore={openFilePicker}
+        >
+          {files.map((fileEntry) => {
+            const sizeComparison =
+              fileEntry.convertedSize !== null
+                ? getSizeComparison(fileEntry.originalSize, fileEntry.convertedSize)
+                : null;
+            const isDone = fileEntry.status === 'done';
+            const isConvertingFile = fileEntry.status === 'converting';
+            const showPreview = isDone && fileEntry.convertedUrl;
 
-              return (
-                <div key={fileEntry.id} className="compressor-file-card group">
-                  <button
-                    type="button"
-                    onClick={() => removeFile(fileEntry.id)}
-                    className="absolute right-1.5 top-1.5 z-10 rounded-full bg-canvas/90 p-1 text-mute shadow-sm hover:text-error"
-                    aria-label="Remove file"
-                  >
-                    <Icon icon={XmarkDuotone} size={16} className="text-current" />
-                  </button>
+            return (
+              <div key={fileEntry.id} className="compressor-file-card" role="listitem">
+                <button
+                  type="button"
+                  onClick={() => removeFile(fileEntry.id)}
+                  className="compressor-file-card-remove"
+                  aria-label="Remove file"
+                >
+                  <Icon icon={XmarkDuotone} size={14} className="text-current" />
+                </button>
 
-                  <div className="compressor-file-card-preview">
-                    {showPreview ? (
-                      <img
-                        src={fileEntry.convertedUrl!}
-                        alt="Converted JPG preview"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full flex-col items-center justify-center gap-1 px-1 text-center sm:px-2">
-                        <span className="type-format-badge px-1.5 py-px text-caption sm:px-2 sm:py-0.5">
-                          HEIC
-                        </span>
-                      </div>
-                    )}
-                    {isConvertingFile && (
-                      <div className="type-caption absolute inset-0 flex items-center justify-center bg-canvas/70 font-medium text-link">
-                        Converting…
-                      </div>
-                    )}
-                    {isDone && <span className="compressor-file-card-badge">JPG</span>}
-                    {isDone && !isSingle && (
-                      <button
-                        type="button"
-                        onClick={() => downloadSingle(fileEntry)}
-                        className="compressor-file-card-download"
-                        aria-label="Download JPG"
-                      >
-                        <Icon icon={Download1Duotone} size={14} />
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="compressor-file-card-meta">
-                    <p className="type-caption truncate font-medium text-ink">
-                      {fileEntry.original.name}
-                    </p>
-                    {fileEntry.status === 'error' ? (
-                      <p className="type-caption text-red-600">{fileEntry.error}</p>
-                    ) : isDone && fileEntry.convertedSize !== null ? (
-                      <p className="type-caption font-medium text-body">
-                        {formatFileSize(fileEntry.convertedSize)}
-                        {sizeComparison && (
-                          <span
-                            className={
-                              sizeComparison.tone === 'smaller'
-                                ? ' text-green-600'
-                                : sizeComparison.tone === 'larger'
-                                  ? ' text-amber-600'
-                                  : ' text-mute'
-                            }
-                          >
-                            {' '}
-                            ({sizeComparison.label})
-                          </span>
-                        )}
-                      </p>
-                    ) : (
-                      <p className="type-caption">
-                        {formatFileSize(fileEntry.originalSize)}
-                      </p>
-                    )}
-                  </div>
+                <div className="compressor-file-card-preview">
+                  {showPreview ? (
+                    <img
+                      src={fileEntry.convertedUrl!}
+                      alt="Converted JPG preview"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center gap-1 px-1 text-center">
+                      <span className="type-format-badge text-caption text-violet-600 dark:text-violet-400">
+                        HEIC
+                      </span>
+                    </div>
+                  )}
+                  {isConvertingFile && (
+                    <div className="type-caption absolute inset-0 flex items-center justify-center bg-canvas/80 font-medium text-link backdrop-blur-[2px]">
+                      Converting…
+                    </div>
+                  )}
+                  {isDone && <span className="compressor-file-card-badge">JPG</span>}
+                  {isDone && !isSingle && (
+                    <button
+                      type="button"
+                      onClick={() => downloadSingle(fileEntry)}
+                      className="compressor-file-card-download"
+                      aria-label="Download JPG"
+                    >
+                      <Icon icon={Download1Duotone} size={14} />
+                    </button>
+                  )}
                 </div>
-              );
-            })}
-          </div>
-        </>
+
+                <div className="compressor-file-card-meta">
+                  <p className="type-caption truncate font-medium text-ink">
+                    {fileEntry.original.name}
+                  </p>
+                  {fileEntry.status === 'error' ? (
+                    <p className="type-caption text-error">{fileEntry.error}</p>
+                  ) : isDone && fileEntry.convertedSize !== null ? (
+                    <p className="type-caption font-medium text-body">
+                      {formatFileSize(fileEntry.convertedSize)}
+                      {sizeComparison && (
+                        <span
+                          className={
+                            sizeComparison.tone === 'smaller'
+                              ? ' text-green-600'
+                              : sizeComparison.tone === 'larger'
+                                ? ' text-amber-600'
+                                : ' text-mute'
+                          }
+                        >
+                          {' '}
+                          ({sizeComparison.label})
+                        </span>
+                      )}
+                    </p>
+                  ) : (
+                    <p className="type-caption">{formatFileSize(fileEntry.originalSize)}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </BulkFileArea>
       )}
       </div>
     </div>

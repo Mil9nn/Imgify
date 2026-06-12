@@ -1,6 +1,5 @@
 export type OutputFormat = 'webp' | 'png' | 'jpg';
 export type CompressionMode = 'lossy' | 'lossless';
-export type CompressOutputFormat = 'original' | OutputFormat;
 
 export function detectImageFormat(file: File): OutputFormat | null {
   if (file.type === 'image/jpeg') return 'jpg';
@@ -193,28 +192,16 @@ export async function convertHeicToJpg(file: File, quality: number): Promise<Blo
   return blob;
 }
 
-function resolveCompressFormat(
-  inputFormat: OutputFormat,
-  outputFormat: CompressOutputFormat,
-  mode: CompressionMode,
-): OutputFormat {
-  if (outputFormat !== 'original') return outputFormat;
-  if (mode === 'lossy' && inputFormat === 'png') return 'webp';
-  return inputFormat;
-}
-
 export async function compressImage(
   file: File,
   mode: CompressionMode,
   quality: number,
-  outputFormat: CompressOutputFormat = 'original',
 ): Promise<Blob> {
   const inputFormat = detectImageFormat(file);
   if (!inputFormat) throw new Error('Unsupported image format');
 
-  const targetFormat = resolveCompressFormat(inputFormat, outputFormat, mode);
   const qualityValue =
-    mode === 'lossless' || targetFormat === 'png' ? undefined : quality / 100;
+    mode === 'lossless' || inputFormat === 'png' ? undefined : quality / 100;
 
   const img = await loadImageFromFile(file);
   const canvas = document.createElement('canvas');
@@ -224,26 +211,15 @@ export async function compressImage(
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas not supported');
 
-  if (targetFormat === 'jpg') {
+  if (inputFormat === 'jpg') {
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
   ctx.drawImage(img, 0, 0);
 
-  const mimeType = getMimeType(targetFormat);
+  const mimeType = getMimeType(inputFormat);
   return canvasToBlob(canvas, mimeType, qualityValue ?? 1);
-}
-
-export function getCompressExtension(
-  file: File,
-  mode: CompressionMode,
-  outputFormat: CompressOutputFormat,
-): string {
-  const inputFormat = detectImageFormat(file);
-  if (!inputFormat) return 'bin';
-  const target = resolveCompressFormat(inputFormat, outputFormat, mode);
-  return getExtension(target);
 }
 
 export function downloadBlob(blob: Blob, filename: string): void {

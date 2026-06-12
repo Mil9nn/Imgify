@@ -1,18 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Download1Duotone,
-  Upload1Duotone,
   XmarkDuotone,
 } from '@lineiconshq/free-icons';
 import Icon from '../shared/Icon';
+import BulkFileArea from './BulkFileArea';
+import UploadDropzone from './UploadDropzone';
 import {
   type CompressionMode,
-  type CompressOutputFormat,
   compressImage,
   downloadBlob,
   formatFileSize,
-  getBaseName,
-  getCompressExtension,
   getSizeComparison,
 } from '../../lib/image-utils';
 
@@ -42,7 +40,6 @@ export default function ImageCompressor({ uploadHint }: ImageCompressorProps) {
   const [files, setFiles] = useState<CompressedFile[]>([]);
   const [mode, setMode] = useState<CompressionMode>('lossy');
   const [quality, setQuality] = useState(75);
-  const [outputFormat, setOutputFormat] = useState<CompressOutputFormat>('original');
   const [isCompressing, setIsCompressing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -105,14 +102,12 @@ export default function ImageCompressor({ uploadHint }: ImageCompressorProps) {
     fileEntry: CompressedFile,
     compressionMode: CompressionMode,
     compressionQuality: number,
-    format: CompressOutputFormat,
   ): Promise<CompressedFile> => {
     try {
       const blob = await compressImage(
         fileEntry.original,
         compressionMode,
         compressionQuality,
-        format,
       );
       const compressedUrl = URL.createObjectURL(blob);
       if (fileEntry.compressedUrl) URL.revokeObjectURL(fileEntry.compressedUrl);
@@ -143,7 +138,7 @@ export default function ImageCompressor({ uploadHint }: ImageCompressorProps) {
       updated[i] = { ...updated[i], status: 'compressing' };
       setFiles([...updated]);
 
-      updated[i] = await compressSingle(updated[i], mode, quality, outputFormat);
+      updated[i] = await compressSingle(updated[i], mode, quality);
       setFiles([...updated]);
 
       await new Promise((r) => requestAnimationFrame(() => r(undefined)));
@@ -154,9 +149,7 @@ export default function ImageCompressor({ uploadHint }: ImageCompressorProps) {
 
   const downloadSingle = (fileEntry: CompressedFile) => {
     if (!fileEntry.compressedBlob) return;
-    const ext = getCompressExtension(fileEntry.original, mode, outputFormat);
-    const name = `${getBaseName(fileEntry.original.name)}.${ext}`;
-    downloadBlob(fileEntry.compressedBlob, name);
+    downloadBlob(fileEntry.compressedBlob, fileEntry.original.name);
   };
 
   const downloadAllZip = async () => {
@@ -169,11 +162,17 @@ export default function ImageCompressor({ uploadHint }: ImageCompressorProps) {
 
     doneFiles.forEach((fileEntry) => {
       if (!fileEntry.compressedBlob) return;
-      const base = getBaseName(fileEntry.original.name);
-      const ext = getCompressExtension(fileEntry.original, mode, outputFormat);
-      const count = (nameCounts.get(base) ?? 0) + 1;
-      nameCounts.set(base, count);
-      const filename = count > 1 ? `${base}-${count}.${ext}` : `${base}.${ext}`;
+      const name = fileEntry.original.name;
+      const count = (nameCounts.get(name) ?? 0) + 1;
+      nameCounts.set(name, count);
+      let filename = name;
+      if (count > 1) {
+        const lastDot = name.lastIndexOf('.');
+        filename =
+          lastDot > 0
+            ? `${name.slice(0, lastDot)}-${count}${name.slice(lastDot)}`
+            : `${name}-${count}`;
+      }
       zip.file(filename, fileEntry.compressedBlob);
     });
 
@@ -213,8 +212,24 @@ export default function ImageCompressor({ uploadHint }: ImageCompressorProps) {
 
   const bulkDownloadLabel = isSingle ? 'Download' : `Download ZIP (${doneCount})`;
 
+  const openFilePicker = () => inputRef.current?.click();
+
+  const workspaceClass =
+    files.length > 0 ? 'compressor-workspace--has-files' : 'compressor-workspace--empty';
+
   return (
-    <div className="compressor-workspace">
+    <div className={`compressor-workspace ${workspaceClass}`}>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={ACCEPTED_TYPES}
+        multiple
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files) addFiles(e.target.files);
+          e.target.value = '';
+        }}
+      />
       <aside className="compressor-panel">
         <p className="type-mono-eyebrow mb-4">Compression settings</p>
 
@@ -264,25 +279,6 @@ export default function ImageCompressor({ uploadHint }: ImageCompressorProps) {
           </div>
         </div>
 
-        <div className="mb-6">
-          <label htmlFor="compress-format" className="type-label mb-2 block">
-            Output format
-          </label>
-          <select
-            id="compress-format"
-            value={outputFormat}
-            onChange={(e) => setOutputFormat(e.target.value as CompressOutputFormat)}
-            className="compressor-select w-full"
-          >
-            <option value="original">
-              {mode === 'lossy' ? 'Auto (PNG → WebP)' : 'Keep original'}
-            </option>
-            <option value="jpg">JPEG</option>
-            <option value="webp">WebP</option>
-            <option value="png">PNG</option>
-          </select>
-        </div>
-
         {totals.count > 0 && (
           <div className="compressor-stats mb-6">
             <p className="type-mono-eyebrow mb-3 opacity-60">Session savings</p>
@@ -298,7 +294,7 @@ export default function ImageCompressor({ uploadHint }: ImageCompressorProps) {
         )}
 
         {files.length > 0 && (
-          <div className="flex flex-col gap-2">
+          <div className="compressor-actions">
             <button
               type="button"
               onClick={compressAll}
@@ -322,157 +318,95 @@ export default function ImageCompressor({ uploadHint }: ImageCompressorProps) {
 
       <div className="compressor-main space-y-4">
         {files.length === 0 && (
-          <div
-            role="button"
-            tabIndex={0}
+          <UploadDropzone
+            isDragging={isDragging}
             onDragOver={(e) => {
               e.preventDefault();
               setIsDragging(true);
             }}
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
-            onClick={() => inputRef.current?.click()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
-            }}
-            className={`compressor-dropzone ${isDragging ? 'compressor-dropzone--active' : ''}`}
-          >
-            <input
-              ref={inputRef}
-              type="file"
-              accept={ACCEPTED_TYPES}
-              multiple
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files) addFiles(e.target.files);
-                e.target.value = '';
-              }}
-            />
-            <span className="compressor-dropzone-icon">
-              <Icon icon={Upload1Duotone} size={28} />
-            </span>
-            <p className="type-label mt-4">
-              {uploadHint ?? 'Drop images here or click to browse'}
-            </p>
-            <p className="type-body-sm mt-1">
-              PNG, JPG, WebP — processed locally in your browser
-            </p>
-          </div>
+            onClick={openFilePicker}
+            primaryText={uploadHint ?? 'Drop images here or click to browse'}
+            secondaryText="PNG, JPG, WebP — processed locally in your browser"
+          />
         )}
 
         {files.length > 0 && (
-          <div className="compressor-file-list">
-            <div className="compressor-file-header">
-              <span>File</span>
-              <span>Original</span>
-              <span>Compressed</span>
-              <span>Savings</span>
-              <span className="sr-only">Actions</span>
-            </div>
-
+          <BulkFileArea
+            fileCount={files.length}
+            doneCount={doneCount}
+            progressVerb="compressed"
+            onAddMore={openFilePicker}
+          >
             {files.map((fileEntry) => {
               const comparison =
                 fileEntry.compressedSize !== null
                   ? getSizeComparison(fileEntry.originalSize, fileEntry.compressedSize)
                   : null;
-              const savingsPct =
-                fileEntry.compressedSize !== null && fileEntry.compressedSize < fileEntry.originalSize
-                  ? Math.round((1 - fileEntry.compressedSize / fileEntry.originalSize) * 100)
-                  : 0;
               const isDone = fileEntry.status === 'done';
               const isActive = fileEntry.status === 'compressing';
 
               return (
-                <div key={fileEntry.id} className="compressor-file-row group">
-                  <div className="compressor-file-row__info flex min-w-0 items-center gap-3">
-                    <div className="checkerboard h-10 w-10 shrink-0 overflow-hidden rounded-md ring-1 ring-hairline">
-                      <img
-                        src={fileEntry.compressedUrl ?? fileEntry.originalUrl}
-                        alt=""
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="type-body-sm truncate font-medium text-ink">
-                        {fileEntry.original.name}
-                      </p>
-                      {fileEntry.status === 'error' ? (
-                        <p className="type-caption text-error">{fileEntry.error}</p>
-                      ) : isActive ? (
-                        <p className="type-caption font-mono text-link">compressing…</p>
-                      ) : null}
-                    </div>
-                  </div>
+                <div key={fileEntry.id} className="compressor-file-card" role="listitem">
+                  <button
+                    type="button"
+                    onClick={() => removeFile(fileEntry.id)}
+                    className="compressor-file-card-remove"
+                    aria-label="Remove file"
+                  >
+                    <Icon icon={XmarkDuotone} size={14} className="text-current" />
+                  </button>
 
-                  <div className="compressor-file-row__stats">
-                    <div>
-                      <span className="compressor-file-stat-label">Original</span>
-                      <p className="type-caption font-mono text-body">
-                        {formatFileSize(fileEntry.originalSize)}
-                      </p>
-                    </div>
-
-                    <div>
-                      <span className="compressor-file-stat-label">Compressed</span>
-                      <p className="type-caption font-mono text-ink">
-                        {isDone && fileEntry.compressedSize !== null
-                          ? formatFileSize(fileEntry.compressedSize)
-                          : '—'}
-                      </p>
-                    </div>
-
-                    <div>
-                      <span className="compressor-file-stat-label">Savings</span>
-                      <div className="flex items-center gap-2">
-                        {isDone && comparison ? (
-                          <>
-                            <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-canvas-soft-2">
-                              <div
-                                className={`h-full rounded-full transition-all ${
-                                  comparison.tone === 'smaller' ? 'bg-link' : 'bg-mute'
-                                }`}
-                                style={{ width: `${Math.max(savingsPct, 4)}%` }}
-                              />
-                            </div>
-                            <span
-                              className={`type-caption shrink-0 font-mono ${
-                                comparison.tone === 'smaller' ? 'text-link' : 'text-mute'
-                              }`}
-                            >
-                              {comparison.label}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="type-caption text-mute">—</span>
-                        )}
+                  <div className="compressor-file-card-preview">
+                    <img
+                      src={fileEntry.compressedUrl ?? fileEntry.originalUrl}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                    {isActive && (
+                      <div className="type-caption absolute inset-0 flex items-center justify-center bg-canvas/80 font-medium text-link backdrop-blur-[2px]">
+                        Compressing…
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="compressor-file-row__actions flex items-center justify-end gap-1 self-start">
+                    )}
+                    {isDone && comparison?.tone === 'smaller' && (
+                      <span className="compressor-file-card-badge">{comparison.label}</span>
+                    )}
                     {isDone && (
                       <button
                         type="button"
                         onClick={() => downloadSingle(fileEntry)}
-                        className="compressor-icon-btn"
+                        className="compressor-file-card-download"
                         aria-label="Download"
                       >
-                        <Icon icon={Download1Duotone} size={16} />
+                        <Icon icon={Download1Duotone} size={14} />
                       </button>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => removeFile(fileEntry.id)}
-                      className="compressor-icon-btn text-mute hover:text-error"
-                      aria-label="Remove file"
-                    >
-                      <Icon icon={XmarkDuotone} size={16} />
-                    </button>
+                  </div>
+
+                  <div className="compressor-file-card-meta">
+                    <p className="type-caption truncate font-medium text-ink">
+                      {fileEntry.original.name}
+                    </p>
+                    {fileEntry.status === 'error' ? (
+                      <p className="type-caption text-error">{fileEntry.error}</p>
+                    ) : isDone && fileEntry.compressedSize !== null ? (
+                      <p className="type-caption">
+                        <span className="text-mute line-through">
+                          {formatFileSize(fileEntry.originalSize)}
+                        </span>{' '}
+                        <span className="font-medium text-ink">
+                          {formatFileSize(fileEntry.compressedSize)}
+                        </span>
+                      </p>
+                    ) : (
+                      <p className="type-caption">{formatFileSize(fileEntry.originalSize)}</p>
+                    )}
                   </div>
                 </div>
               );
             })}
-          </div>
+          </BulkFileArea>
         )}
       </div>
     </div>

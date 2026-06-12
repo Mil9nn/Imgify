@@ -1,6 +1,5 @@
 ---
 import CompressorPageLayout from '../../components/shared/CompressorPageLayout.astro';
-import DropzoneFallback from '../../components/shared/DropzoneFallback.astro';
 import ImageCompressor from '../../components/tools/ImageCompressor';
 import { getRelatedConversions } from '../../lib/conversion-pages';
 import { imageCompressorPageFaqs } from '../../lib/image-compressor-faqs';
@@ -16,7 +15,7 @@ const steps = [
   {
     title: 'Choose mode and quality',
     description:
-      'Pick lossy for maximum size reduction with a quality slider, or lossless to preserve full fidelity. Select an output format if needed.',
+      'Pick lossy for maximum size reduction with a quality slider, or lossless to preserve full fidelity. Output stays in the same format as your upload.',
   },
   {
     title: 'Download compressed files',
@@ -45,18 +44,11 @@ const relatedTools = [
   description="Free image compressor online. Compress PNG, JPG & WebP with lossy or lossless mode and quality control. Shrink images in your browser — no signup."
   canonical="/tools/image-compressor"
   headline="Compress images without the upload."
-  tagline="Lossy and lossless compression with quality control — PNG, JPG, and WebP, processed locally in your browser."
   intro={intro}
   toolName="Image Compressor"
   faqs={imageCompressorPageFaqs}
   relatedTools={relatedTools}
   steps={steps}
 >
-  <ImageCompressor client:only="react" uploadHint="Drop images to compress">
-    <DropzoneFallback
-      slot="fallback"
-      hint="Drop images to compress"
-      subhint="PNG, JPG, WEBP — loading compressor…"
-    />
-  </ImageCompressor>
+  <ImageCompressor client:load uploadHint="Drop images to compress" />
 </CompressorPageLayout>

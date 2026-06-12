@@ -69,6 +69,10 @@ export const conversionPages: ConversionPageConfig[] = [
         a: 'Upload your JPG file, ensure WebP is selected as the output format, adjust quality if needed, click Convert All, and download your WebP image.',
       },
       {
+        q: 'How to convert JPG to WebP on Windows?',
+        a: 'On Windows, open Chrome or Edge, visit this JPG to WebP converter, upload your JPEG files, and download WebP images. No software install needed — conversion runs in your browser.',
+      },
+      {
         q: 'Is JPG to WebP conversion free?',
         a: 'Yes, Pickraft\'s JPG to WebP converter is completely free with unlimited conversions and no signup.',
       },
@@ -77,12 +81,12 @@ export const conversionPages: ConversionPageConfig[] = [
         a: 'WebP offers better compression than JPEG, producing smaller files with similar quality. This improves website speed and reduces bandwidth usage.',
       },
       {
-        q: 'Can I convert multiple JPG files to WebP at once?',
-        a: 'Yes. Upload multiple JPEG files and download all converted WebP images as a ZIP archive.',
-      },
-      {
         q: 'Does converting JPG to WebP reduce quality?',
         a: 'You control quality with the slider (10–100). At 80–85 quality, most users see no visible difference while file size drops significantly.',
+      },
+      {
+        q: 'Can I convert multiple JPG files to WebP at once?',
+        a: 'Yes. Upload multiple JPEG files and download all converted WebP images as a ZIP archive.',
       },
     ],
   },
@@ -101,6 +105,10 @@ export const conversionPages: ConversionPageConfig[] = [
       {
         q: 'How do I convert PNG to WebP?',
         a: 'Upload your PNG file, select WebP as output, adjust quality, convert, and download. WebP is pre-selected on this page.',
+      },
+      {
+        q: 'How to convert PNG to WebP on iPhone?',
+        a: 'On iPhone, open Safari, visit this PNG to WebP converter, tap upload to pick PNG images from your library, convert, and download WebP files to Files or Photos.',
       },
       {
         q: 'Is PNG to WebP conversion free?',
@@ -150,6 +158,10 @@ export const conversionPages: ConversionPageConfig[] = [
         a: 'Upload your WebP file, PNG is pre-selected. Click Convert All and download your PNG image.',
       },
       {
+        q: 'How to convert WebP to PNG on Windows?',
+        a: 'On Windows, open Chrome or Edge, visit this WebP to PNG converter, upload your WebP files, and download PNG images. No software install required.',
+      },
+      {
         q: 'Why convert WebP to PNG?',
         a: 'PNG has broader compatibility with design tools, document editors, and print workflows that may not support WebP.',
       },
@@ -182,6 +194,10 @@ export const conversionPages: ConversionPageConfig[] = [
       {
         q: 'How do I convert WebP to JPG?',
         a: 'Upload your WebP image, JPG is pre-selected as output. Convert and download your JPEG file.',
+      },
+      {
+        q: 'How to convert WebP to JPG on iPhone?',
+        a: 'On iPhone, open Safari, visit this WebP to JPG converter, tap upload to pick WebP images, convert, and download JPEG files to Files or Photos.',
       },
       {
         q: 'Is WebP to JPG conversion free?',

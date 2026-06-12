@@ -1,6 +1,5 @@
 ---
 import ToolLayout from '../../components/shared/ToolLayout.astro';
-import DropzoneFallback from '../../components/shared/DropzoneFallback.astro';
 import ImageToPdf from '../../components/tools/ImageToPdf';
 import { getRelatedConversions } from '../../lib/conversion-pages';
 import { imageToPdfPageFaqs } from '../../lib/img-pdf-faqs';
@@ -32,22 +31,14 @@ const relatedTools = [...getRelatedConversions('img-to-pdf', 3)];
   title="Image to PDF Converter Free — Convert Image to PDF Online | Pickraft"
   description="Free image to PDF converter. Convert image to PDF online — combine JPG, PNG & WebP into one PDF. Img to PDF free, no download. Works on iPhone, Mac & Windows."
   canonical="/tools/img-to-pdf"
-  tagline="Convert image to PDF free online — free image to PDF converter, no signup or download"
   intro={intro}
   fromFormat="IMG"
   toFormat="PDF"
-  headline="Turn images into a PDF in your browser."
   aboutTitle="Combine images into one document."
   toolName="Image to PDF Converter"
   faqs={imageToPdfPageFaqs}
   relatedTools={relatedTools}
   steps={steps}
 >
-  <ImageToPdf client:only="react" uploadHint="Drop images here to convert to PDF">
-    <DropzoneFallback
-      slot="fallback"
-      hint="Drop images here to convert to PDF"
-      subhint="PNG, JPG, WEBP — free image to PDF converter, no download"
-    />
-  </ImageToPdf>
+  <ImageToPdf client:load uploadHint="Drop images here to convert to PDF" />
 </ToolLayout>
